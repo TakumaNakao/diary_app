@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Calendar as CalendarIcon, Book, Tag, Settings, ChevronRight, ChevronDown } from 'lucide-react';
+import { Calendar as CalendarIcon, Book, Tag, Settings, ChevronRight, ChevronDown, Search as SearchIcon } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import { useState } from 'react';
 import './Layout.css';
@@ -74,6 +74,10 @@ const Layout = () => {
                     <Link to="/" className={`nav-item ${isActive('/')}`}>
                         <CalendarIcon size={20} />
                         <span>Calendar</span>
+                    </Link>
+                    <Link to="/search" className={`nav-item ${isActive('/search')}`}>
+                        <SearchIcon size={20} />
+                        <span>Search</span>
                     </Link>
                     <Link to="/tags" className={`nav-item ${isActive('/tags')}`}>
                         <Settings size={20} />

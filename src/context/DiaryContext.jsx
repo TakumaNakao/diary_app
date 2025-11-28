@@ -57,6 +57,57 @@ export const DiaryProvider = ({ children }) => {
         });
     };
 
+    const searchEntries = ({ query = '', tagIds = [], startDate = null, endDate = null }) => {
+        const allEntries = Object.values(entries);
+
+        return allEntries.filter(entry => {
+            // Text search (title + content)
+            if (query.trim()) {
+                const searchText = query.toLowerCase();
+                const titleMatch = entry.title?.toLowerCase().includes(searchText);
+                const contentMatch = entry.content?.toLowerCase().includes(searchText);
+
+                if (!titleMatch && !contentMatch) {
+                    return false;
+                }
+            }
+
+            // Tag filter
+            if (tagIds.length > 0) {
+                const entryTags = entry.tags || [];
+                const hasAllTags = tagIds.every(tagId => entryTags.includes(tagId));
+
+                if (!hasAllTags) {
+                    return false;
+                }
+            }
+
+            // Date range filter
+            if (startDate || endDate) {
+                const entryDate = new Date(entry.date);
+
+                if (startDate) {
+                    const start = new Date(startDate);
+                    start.setHours(0, 0, 0, 0);
+                    if (entryDate < start) {
+                        return false;
+                    }
+                }
+
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    if (entryDate > end) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date descending
+    };
+
+
     return (
         <DiaryContext.Provider value={{
             entries,
@@ -64,7 +115,8 @@ export const DiaryProvider = ({ children }) => {
             saveEntry,
             deleteEntry,
             saveTag,
-            deleteTag
+            deleteTag,
+            searchEntries
         }}>
             {children}
         </DiaryContext.Provider>
