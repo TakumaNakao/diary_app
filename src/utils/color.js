@@ -60,20 +60,21 @@ export const rgbToHex = (r, g, b) => {
 };
 
 export const adjustColorShade = (hex, level) => {
-    // level: 1 (lightest) to 5 (darkest), 3 is base
+    // level: 1 (lightest) to 5 (darkest/base)
     const rgb = hexToRgb(hex);
     if (!rgb) return hex;
     const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
     // Adjust lightness based on level
-    // Level 3 is original lightness
+    // Level 5 is original lightness (Base)
+    // Lower levels are lighter
     let newL = hsl.l;
     switch (parseInt(level)) {
-        case 1: newL = hsl.l + (1 - hsl.l) * 0.6; break; // Much lighter
-        case 2: newL = hsl.l + (1 - hsl.l) * 0.3; break; // Lighter
-        case 3: newL = hsl.l; break;                     // Base
-        case 4: newL = hsl.l * 0.7; break;               // Darker
-        case 5: newL = hsl.l * 0.4; break;               // Much darker
+        case 1: newL = hsl.l + (1 - hsl.l) * 0.80; break; // Much lighter
+        case 2: newL = hsl.l + (1 - hsl.l) * 0.60; break; // Lighter
+        case 3: newL = hsl.l + (1 - hsl.l) * 0.40; break; // Medium lighter
+        case 4: newL = hsl.l + (1 - hsl.l) * 0.20; break; // Slightly lighter
+        case 5: newL = hsl.l; break;                      // Base (Darkest)
         default: newL = hsl.l;
     }
 

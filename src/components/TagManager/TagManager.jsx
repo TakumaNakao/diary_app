@@ -11,7 +11,7 @@ const TagManager = () => {
     const [tagName, setTagName] = useState('');
     const [parentId, setParentId] = useState(null);
     const [tagColor, setTagColor] = useState('#6B7280'); // Base color
-    const [shadeLevel, setShadeLevel] = useState(3); // 1-5, 3 is base
+    const [shadeLevel, setShadeLevel] = useState(5); // 1-5, 5 is base
     const [errorMessage, setErrorMessage] = useState('');
     const [deletingId, setDeletingId] = useState(null);
 
@@ -90,7 +90,7 @@ const TagManager = () => {
         setTagName(tag.name);
         setParentId(tag.parentId || null);
         setTagColor(tag.baseColor || tag.color || '#6B7280');
-        setShadeLevel(tag.shadeLevel || 3);
+        setShadeLevel(tag.shadeLevel || 5);
         setIsAdding(true);
     };
 
@@ -104,11 +104,11 @@ const TagManager = () => {
             // Inherit parent's base color
             setTagColor(parent.baseColor || parent.color || '#6B7280');
             // Set shade level: parent's level - 1 (lighter), min 1
-            const parentLevel = parent.shadeLevel || 3;
+            const parentLevel = parent.shadeLevel || 5;
             setShadeLevel(Math.max(1, parentLevel - 1));
         } else {
             setTagColor('#6B7280');
-            setShadeLevel(3);
+            setShadeLevel(5);
         }
 
         setIsAdding(true);
@@ -120,7 +120,7 @@ const TagManager = () => {
         setTagName('');
         setParentId(null);
         setTagColor('#6B7280');
-        setShadeLevel(3);
+        setShadeLevel(5);
         setErrorMessage('');
     };
 
@@ -172,12 +172,12 @@ const TagManager = () => {
             // Inherit parent's base color
             setTagColor(parent.baseColor || parent.color || '#6B7280');
             // Set shade level: parent's level - 1 (lighter), min 1
-            const parentLevel = parent.shadeLevel || 3;
+            const parentLevel = parent.shadeLevel || 5;
             setShadeLevel(Math.max(1, parentLevel - 1));
         } else {
             // Reset to default if no parent selected
             setTagColor('#6B7280');
-            setShadeLevel(3);
+            setShadeLevel(5);
         }
     };
 
