@@ -43,9 +43,9 @@ const Calendar = () => {
         const firstDay = getFirstDayOfMonth(currentDate);
         const days = [];
 
-        // Empty cells for days before the first day of the month
+        // Previous month's empty cells
         for (let i = 0; i < firstDay; i++) {
-            days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+            days.push(<div key={`empty-prev-${i}`} className="calendar-day empty"></div>);
         }
 
         // Days of the month
@@ -70,6 +70,14 @@ const Calendar = () => {
                     {hasEntry && <div className="entry-indicator"></div>}
                 </div>
             );
+        }
+
+        // Fill remaining cells to complete 42 cells (6 weeks)
+        const totalCells = firstDay + daysInMonth;
+        const remainingCells = 42 - totalCells;
+
+        for (let i = 0; i < remainingCells; i++) {
+            days.push(<div key={`empty-next-${i}`} className="calendar-day empty"></div>);
         }
 
         return days;
