@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Save, Eye, Edit2, ArrowLeft, Tag } from 'lucide-react';
@@ -20,6 +20,10 @@ const Editor = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [showTagSelector, setShowTagSelector] = useState(false);
 
+    // Track if this is the initial load to avoid auto-saving on mount
+    const isInitialLoad = useRef(true);
+    const saveTimeoutRef = useRef(null);
+
     // Load existing entry or reset for new
     useEffect(() => {
         if (id === 'new') {
@@ -35,7 +39,35 @@ const Editor = () => {
                 setEntryDate(entry.date);
             }
         }
+        // Mark initial load as complete after a short delay
+        setTimeout(() => {
+            isInitialLoad.current = false;
+        }, 100);
     }, [id, entries, dateParam]);
+
+    // Auto-save when content or tags change (with debouncing)
+    useEffect(() => {
+        // Skip auto-save on initial load or if we're on a 'new' entry with no content
+        if (isInitialLoad.current) return;
+        if (id === 'new' && content.trim().length === 0 && selectedTags.length === 0) return;
+
+        // Clear existing timeout
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+        }
+
+        // Set new timeout for auto-save (0.3 second debounce)
+        saveTimeoutRef.current = setTimeout(() => {
+            handleSave();
+        }, 300);
+
+        // Cleanup timeout on unmount
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+        };
+    }, [content, selectedTags]); // Auto-save when content or tags change
 
     const handleSave = () => {
         setIsSaving(true);
@@ -54,15 +86,6 @@ const Editor = () => {
         }
 
         setTimeout(() => setIsSaving(false), 500);
-    };
-
-    const handleBlur = () => {
-        // Optional: Auto-save logic. 
-        // For multiple entries, auto-save on new might be tricky if it creates many entries.
-        // Let's keep it simple: Auto-save only if we have an ID or content is not empty.
-        if (id !== 'new' || content.trim().length > 0) {
-            handleSave();
-        }
     };
 
     const toggleTag = (tagId) => {
@@ -137,7 +160,6 @@ const Editor = () => {
                         className="editor-textarea"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        onBlur={handleBlur}
                         placeholder="Write your diary entry here... (Markdown supported)"
                         autoFocus
                     />
