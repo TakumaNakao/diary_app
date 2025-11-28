@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Eye, Edit2, ArrowLeft, Tag } from 'lucide-react';
+import { Eye, Edit2, ArrowLeft, Tag, Trash2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './Editor.css';
 
@@ -11,13 +11,14 @@ const Editor = () => {
     const dateParam = searchParams.get('date');
 
     const navigate = useNavigate();
-    const { entries, saveEntry: saveEntryContext, tags } = useDiary();
+    const { entries, saveEntry: saveEntryContext, tags, deleteEntry } = useDiary();
 
     const [content, setContent] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
     const [entryDate, setEntryDate] = useState(dateParam || new Date().toISOString().split('T')[0]);
     const [mode, setMode] = useState('edit'); // 'edit' | 'preview'
     const [showTagSelector, setShowTagSelector] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     // Track if this is the initial load to avoid auto-saving on mount
     const isInitialLoad = useRef(true);
@@ -110,6 +111,21 @@ const Editor = () => {
         );
     };
 
+    const handleDeleteClick = () => {
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = () => {
+        if (id && id !== 'new') {
+            deleteEntry(id);
+            navigate(`/day/${entryDate}`);
+        }
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteConfirm(false);
+    };
+
     return (
         <div className="editor-container">
             <div className="editor-header">
@@ -161,6 +177,23 @@ const Editor = () => {
                             <Eye size={16} style={{ marginRight: 8 }} /> Preview
                         </button>
                     </div>
+                    {id && id !== 'new' && (
+                        showDeleteConfirm ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Delete entry?</span>
+                                <button onClick={confirmDelete} className="btn btn-ghost" style={{ color: 'var(--color-danger)' }}>
+                                    <Trash2 size={16} style={{ marginRight: 4 }} /> Delete
+                                </button>
+                                <button onClick={cancelDelete} className="btn btn-ghost">
+                                    Cancel
+                                </button>
+                            </div>
+                        ) : (
+                            <button onClick={handleDeleteClick} className="btn btn-ghost" title="Delete Entry">
+                                <Trash2 size={20} />
+                            </button>
+                        )
+                    )}
                 </div>
             </div>
 
