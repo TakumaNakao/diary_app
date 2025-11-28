@@ -1,17 +1,68 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Calendar as CalendarIcon, Book, Tag, Settings } from 'lucide-react';
+import { Calendar as CalendarIcon, Book, Tag, Settings, ChevronRight, ChevronDown } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
+import { useState } from 'react';
 import './Layout.css';
 
 const Layout = () => {
     const location = useLocation();
     const { tags } = useDiary();
+    const [expandedTags, setExpandedTags] = useState({});
 
     const isActive = (path) => {
         return location.pathname === path ? 'active' : '';
     };
 
+    const toggleExpand = (e, tagId) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setExpandedTags(prev => ({
+            ...prev,
+            [tagId]: !prev[tagId]
+        }));
+    };
+
     const getRootTags = () => Object.values(tags).filter(tag => !tag.parentId);
+    const getChildTags = (parentId) => Object.values(tags).filter(tag => tag.parentId === parentId);
+
+    const renderTagNav = (tagList, level = 0) => {
+        if (tagList.length === 0) return null;
+
+        return tagList.map(tag => {
+            const children = getChildTags(tag.id);
+            const hasChildren = children.length > 0;
+            const isExpanded = expandedTags[tag.id];
+
+            return (
+                <div key={tag.id} className="nav-tag-container">
+                    <div className={`nav-item-wrapper ${isActive(`/tag/${tag.id}`)}`}>
+                        <Link
+                            to={`/tag/${tag.id}`}
+                            className="nav-item-link"
+                            style={{ paddingLeft: `calc(var(--spacing-3) + ${level * 12}px)` }}
+                        >
+                            <Tag size={16} className="nav-icon" />
+                            <span className="nav-text">{tag.name}</span>
+                        </Link>
+                        {hasChildren && (
+                            <button
+                                className="nav-expand-btn"
+                                onClick={(e) => toggleExpand(e, tag.id)}
+                            >
+                                {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                            </button>
+                        )}
+                    </div>
+
+                    {hasChildren && isExpanded && (
+                        <div className="nav-children">
+                            {renderTagNav(children, level + 1)}
+                        </div>
+                    )}
+                </div>
+            );
+        });
+    };
 
     return (
         <div className="app-layout">
@@ -31,12 +82,7 @@ const Layout = () => {
 
                     <div className="nav-section">
                         <span className="nav-section-title">Tags</span>
-                        {getRootTags().map(tag => (
-                            <Link key={tag.id} to={`/tag/${tag.id}`} className={`nav-item ${isActive(`/tag/${tag.id}`)}`}>
-                                <Tag size={16} />
-                                <span>{tag.name}</span>
-                            </Link>
-                        ))}
+                        {renderTagNav(getRootTags())}
                     </div>
                 </nav>
             </aside>
