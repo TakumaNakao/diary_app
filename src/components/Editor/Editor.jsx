@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Save, Eye, Edit2, ArrowLeft, Tag } from 'lucide-react';
+import { Eye, Edit2, ArrowLeft, Tag } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './Editor.css';
 
@@ -17,7 +17,6 @@ const Editor = () => {
     const [selectedTags, setSelectedTags] = useState([]);
     const [entryDate, setEntryDate] = useState(dateParam || new Date().toISOString().split('T')[0]);
     const [mode, setMode] = useState('edit'); // 'edit' | 'preview'
-    const [isSaving, setIsSaving] = useState(false);
     const [showTagSelector, setShowTagSelector] = useState(false);
 
     // Track if this is the initial load to avoid auto-saving on mount
@@ -88,7 +87,6 @@ const Editor = () => {
     }, [content, selectedTags]); // Auto-save when content or tags change
 
     const handleSave = () => {
-        setIsSaving(true);
         const entryData = {
             id: id === 'new' ? undefined : id,
             date: entryDate,
@@ -102,8 +100,6 @@ const Editor = () => {
         if (id === 'new') {
             navigate(`/entry/${savedEntry.id}`, { replace: true });
         }
-
-        setTimeout(() => setIsSaving(false), 500);
     };
 
     const toggleTag = (tagId) => {
@@ -165,10 +161,6 @@ const Editor = () => {
                             <Eye size={16} style={{ marginRight: 8 }} /> Preview
                         </button>
                     </div>
-                    <button onClick={handleSave} className="btn btn-ghost" disabled={isSaving}>
-                        <Save size={20} />
-                        {isSaving ? ' Saving...' : ''}
-                    </button>
                 </div>
             </div>
 
