@@ -244,15 +244,25 @@ const TagManager = () => {
                     <div className="form-group">
                         <label>Shade Level (Lighter ↔ Darker)</label>
                         <div className="shade-control">
-                            <input
-                                type="range"
-                                min="1"
-                                max="5"
-                                step="1"
-                                value={shadeLevel}
-                                onChange={(e) => setShadeLevel(parseInt(e.target.value))}
-                                className="shade-slider"
-                            />
+                            <div className="shade-slider-container">
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="5"
+                                    step="1"
+                                    value={shadeLevel}
+                                    onChange={(e) => setShadeLevel(parseInt(e.target.value))}
+                                    className="shade-slider"
+                                />
+                                <div className="shade-ruler">
+                                    {[1, 2, 3, 4, 5].map(level => (
+                                        <div key={level} className="shade-mark">
+                                            <div className="shade-tick"></div>
+                                            <span className="shade-label">{level}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                             <div className="shade-preview">
                                 <div
                                     className="shade-preview-box"
