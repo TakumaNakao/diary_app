@@ -22,19 +22,20 @@ export const DiaryProvider = ({ children }) => {
         setTags(data.tags);
     }, []);
 
-    const saveEntry = (date, content, entryTags) => {
-        const savedEntry = StorageService.saveEntry(date, content, entryTags);
+    const saveEntry = (entryData) => {
+        const savedEntry = StorageService.saveEntry(entryData);
         setEntries(prev => ({
             ...prev,
-            [date]: savedEntry
+            [savedEntry.id]: savedEntry
         }));
+        return savedEntry;
     };
 
-    const deleteEntry = (date) => {
-        StorageService.deleteEntry(date);
+    const deleteEntry = (id) => {
+        StorageService.deleteEntry(id);
         setEntries(prev => {
             const newEntries = { ...prev };
-            delete newEntries[date];
+            delete newEntries[id];
             return newEntries;
         });
     };

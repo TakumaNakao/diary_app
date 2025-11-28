@@ -1,39 +1,68 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Save, Eye, Edit2, ArrowLeft, Tag } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './Editor.css';
 
 const Editor = () => {
-    const { date } = useParams();
+    const { id } = useParams(); // 'new' or uuid
+    const [searchParams] = useSearchParams();
+    const dateParam = searchParams.get('date');
+
     const navigate = useNavigate();
     const { entries, saveEntry: saveEntryContext, tags } = useDiary();
 
     const [content, setContent] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
+    const [entryDate, setEntryDate] = useState(dateParam || new Date().toISOString().split('T')[0]);
     const [mode, setMode] = useState('edit'); // 'edit' | 'preview'
     const [isSaving, setIsSaving] = useState(false);
     const [showTagSelector, setShowTagSelector] = useState(false);
 
+    // Load existing entry or reset for new
     useEffect(() => {
-        if (entries[date]) {
-            setContent(entries[date].content);
-            setSelectedTags(entries[date].tags || []);
-        } else {
+        if (id === 'new') {
             setContent('');
             setSelectedTags([]);
+            setEntryDate(dateParam || new Date().toISOString().split('T')[0]);
+            setMode('edit');
+        } else if (id) {
+            const entry = entries[id];
+            if (entry) {
+                setContent(entry.content);
+                setSelectedTags(entry.tags || []);
+                setEntryDate(entry.date);
+            }
         }
-    }, [date, entries]);
+    }, [id, entries, dateParam]);
 
     const handleSave = () => {
         setIsSaving(true);
-        saveEntryContext(date, content, selectedTags);
+        const entryData = {
+            id: id === 'new' ? undefined : id,
+            date: entryDate,
+            content,
+            tags: selectedTags
+        };
+
+        const savedEntry = saveEntryContext(entryData);
+
+        // If it was new, navigate to the created ID to avoid creating duplicates on subsequent saves
+        if (id === 'new') {
+            navigate(`/entry/${savedEntry.id}`, { replace: true });
+        }
+
         setTimeout(() => setIsSaving(false), 500);
     };
 
     const handleBlur = () => {
-        handleSave();
+        // Optional: Auto-save logic. 
+        // For multiple entries, auto-save on new might be tricky if it creates many entries.
+        // Let's keep it simple: Auto-save only if we have an ID or content is not empty.
+        if (id !== 'new' || content.trim().length > 0) {
+            handleSave();
+        }
     };
 
     const toggleTag = (tagId) => {
@@ -48,10 +77,10 @@ const Editor = () => {
         <div className="editor-container">
             <div className="editor-header">
                 <div className="editor-header-left">
-                    <button onClick={() => navigate('/')} className="btn btn-ghost" aria-label="Back">
+                    <button onClick={() => navigate(`/day/${entryDate}`)} className="btn btn-ghost" aria-label="Back">
                         <ArrowLeft size={20} />
                     </button>
-                    <h2>{new Date(date).toLocaleDateString(undefined, { dateStyle: 'full' })}</h2>
+                    <h2>{new Date(entryDate).toLocaleDateString(undefined, { dateStyle: 'full' })}</h2>
                 </div>
                 <div className="editor-actions">
                     <div className="tag-selector-container" style={{ position: 'relative' }}>

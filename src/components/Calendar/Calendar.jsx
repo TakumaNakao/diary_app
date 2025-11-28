@@ -35,7 +35,7 @@ const Calendar = () => {
         const month = String(currentDate.getMonth() + 1).padStart(2, '0');
         const dayStr = String(day).padStart(2, '0');
         const dateStr = `${year}-${month}-${dayStr}`;
-        navigate(`/entry/${dateStr}`);
+        navigate(`/day/${dateStr}`);
     };
 
     const renderDays = () => {
@@ -54,7 +54,10 @@ const Calendar = () => {
             const month = String(currentDate.getMonth() + 1).padStart(2, '0');
             const dayStr = String(i).padStart(2, '0');
             const dateStr = `${year}-${month}-${dayStr}`;
-            const hasEntry = !!entries[dateStr];
+
+            // Check if any entry exists for this date
+            const hasEntry = Object.values(entries).some(entry => entry.date === dateStr);
+
             const isToday = new Date().toDateString() === new Date(year, currentDate.getMonth(), i).toDateString();
 
             days.push(

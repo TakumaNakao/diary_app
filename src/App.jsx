@@ -6,6 +6,7 @@ import Calendar from './components/Calendar/Calendar';
 import Editor from './components/Editor/Editor';
 import TagManager from './components/TagManager/TagManager';
 import EntryList from './components/EntryList/EntryList';
+import DailyLog from './components/DailyLog/DailyLog';
 
 function App() {
   return (
@@ -14,7 +15,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<div className="flex justify-center"><Calendar /></div>} />
-            <Route path="entry/:date" element={<Editor />} />
+            <Route path="day/:date" element={<DailyLog />} />
+            <Route path="entry/:id" element={<Editor />} />
             <Route path="tags" element={<TagManager />} />
             <Route path="tag/:tagId" element={<EntryList />} />
           </Route>

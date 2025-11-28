@@ -45,7 +45,7 @@ const EntryList = () => {
                     <p className="empty-list">No entries found with this tag.</p>
                 ) : (
                     filteredEntries.map(entry => (
-                        <Link key={entry.date} to={`/entry/${entry.date}`} className="entry-card">
+                        <Link key={entry.id} to={`/entry/${entry.id}`} className="entry-card">
                             <div className="entry-card-header">
                                 <div className="entry-date">
                                     <Calendar size={16} />
