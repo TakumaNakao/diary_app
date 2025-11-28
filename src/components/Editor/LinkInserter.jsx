@@ -32,21 +32,8 @@ const LinkInserter = ({ onClose, onInsert }) => {
         // Find entries for this date
         const dayEntries = Object.values(entries).filter(e => e.date === dateStr);
 
-        if (dayEntries.length <= 1) {
-            if (dayEntries.length === 0) {
-                // Link to the daily log even if empty
-                onInsert(`[${dateStr}](/day/${dateStr})`);
-            } else {
-                // Link to the specific entry
-                const entry = dayEntries[0];
-                const title = entry.content.split('\n')[0].substring(0, 20).replace(/[\[\]]/g, '') || 'Entry';
-                onInsert(`[${dateStr}: ${title}...](/entry/${entry.id})`);
-            }
-            onClose();
-        } else {
-            // Show selection for multiple entries
-            setSelectedDayEntries({ date: dateStr, entries: dayEntries });
-        }
+        // Show selection for multiple entries (or single/zero entries to allow Daily Log link selection)
+        setSelectedDayEntries({ date: dateStr, entries: dayEntries });
     };
 
     const renderCalendar = () => {
