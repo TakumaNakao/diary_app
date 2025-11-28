@@ -103,9 +103,9 @@ const TagManager = () => {
         setErrorMessage('');
     };
 
-    const renderTagTree = (tagList, level = 0) => {
+    const renderTagTree = (tagList) => {
         return tagList.map(tag => (
-            <div key={tag.id} className="tag-item-container" style={{ marginLeft: level * 20 }}>
+            <div key={tag.id} className="tag-item-container">
                 <div className="tag-item">
                     <div className="tag-info">
                         <div className="tag-color-indicator" style={{ backgroundColor: tag.color || '#6B7280' }}></div>
@@ -135,7 +135,9 @@ const TagManager = () => {
                         </div>
                     )}
                 </div>
-                {renderTagTree(getChildTags(tag.id), level + 1)}
+                <div className="tag-children">
+                    {renderTagTree(getChildTags(tag.id))}
+                </div>
             </div>
         ));
     };
