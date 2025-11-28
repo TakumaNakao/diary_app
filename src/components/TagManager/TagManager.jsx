@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
+import { adjustColorShade } from '../../utils/color';
 import './TagManager.css';
 
 const TagManager = () => {
@@ -9,7 +10,8 @@ const TagManager = () => {
     const [editingId, setEditingId] = useState(null);
     const [tagName, setTagName] = useState('');
     const [parentId, setParentId] = useState(null);
-    const [tagColor, setTagColor] = useState('#6B7280');
+    const [tagColor, setTagColor] = useState('#6B7280'); // Base color
+    const [shadeLevel, setShadeLevel] = useState(3); // 1-5, 3 is base
     const [errorMessage, setErrorMessage] = useState('');
     const [deletingId, setDeletingId] = useState(null);
 
@@ -53,11 +55,15 @@ const TagManager = () => {
             return;
         }
 
+        const finalColor = adjustColorShade(tagColor, shadeLevel);
+
         const tag = {
             id: editingId, // If null, saveTag generates new ID
             name: tagName.trim(),
             parentId: normalizedParentId,
-            color: tagColor
+            color: finalColor,
+            baseColor: tagColor,
+            shadeLevel: shadeLevel
         };
 
         saveTag(tag);
@@ -83,7 +89,8 @@ const TagManager = () => {
         setEditingId(tag.id);
         setTagName(tag.name);
         setParentId(tag.parentId || null);
-        setTagColor(tag.color || '#6B7280');
+        setTagColor(tag.baseColor || tag.color || '#6B7280');
+        setShadeLevel(tag.shadeLevel || 3);
         setIsAdding(true);
     };
 
@@ -91,6 +98,19 @@ const TagManager = () => {
         setEditingId(null);
         setTagName('');
         setParentId(pid);
+
+        if (pid && tags[pid]) {
+            const parent = tags[pid];
+            // Inherit parent's base color
+            setTagColor(parent.baseColor || parent.color || '#6B7280');
+            // Set shade level: parent's level - 1 (lighter), min 1
+            const parentLevel = parent.shadeLevel || 3;
+            setShadeLevel(Math.max(1, parentLevel - 1));
+        } else {
+            setTagColor('#6B7280');
+            setShadeLevel(3);
+        }
+
         setIsAdding(true);
     };
 
@@ -100,6 +120,7 @@ const TagManager = () => {
         setTagName('');
         setParentId(null);
         setTagColor('#6B7280');
+        setShadeLevel(3);
         setErrorMessage('');
     };
 
@@ -142,6 +163,24 @@ const TagManager = () => {
         ));
     };
 
+    const handleParentChange = (e) => {
+        const newPid = e.target.value || null;
+        setParentId(newPid);
+
+        if (newPid && tags[newPid]) {
+            const parent = tags[newPid];
+            // Inherit parent's base color
+            setTagColor(parent.baseColor || parent.color || '#6B7280');
+            // Set shade level: parent's level - 1 (lighter), min 1
+            const parentLevel = parent.shadeLevel || 3;
+            setShadeLevel(Math.max(1, parentLevel - 1));
+        } else {
+            // Reset to default if no parent selected
+            setTagColor('#6B7280');
+            setShadeLevel(3);
+        }
+    };
+
     return (
         <div className="tag-manager">
             <div className="tag-manager-header">
@@ -178,7 +217,7 @@ const TagManager = () => {
                     </div>
                     <div className="form-group">
                         <label>Parent Tag</label>
-                        <select value={parentId || ''} onChange={(e) => setParentId(e.target.value || null)}>
+                        <select value={parentId || ''} onChange={handleParentChange}>
                             <option value="">(None)</option>
                             {Object.values(tags)
                                 .filter(t => t.id !== editingId) // Prevent self-parenting
@@ -200,6 +239,27 @@ const TagManager = () => {
                                     title={color}
                                 />
                             ))}
+                        </div>
+                    </div>
+                    <div className="form-group">
+                        <label>Shade Level (Lighter ↔ Darker)</label>
+                        <div className="shade-control">
+                            <input
+                                type="range"
+                                min="1"
+                                max="5"
+                                step="1"
+                                value={shadeLevel}
+                                onChange={(e) => setShadeLevel(parseInt(e.target.value))}
+                                className="shade-slider"
+                            />
+                            <div className="shade-preview">
+                                <div
+                                    className="shade-preview-box"
+                                    style={{ backgroundColor: adjustColorShade(tagColor, shadeLevel) }}
+                                ></div>
+                                <span>Level {shadeLevel}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="form-actions">

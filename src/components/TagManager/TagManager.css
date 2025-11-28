@@ -319,10 +319,230 @@
     background-color: #fee2e2;
 }
 
+.empty-state {}
+
+.tag-actions {
+    display: flex;
+    gap: var(--spacing-1);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.delete-confirmation {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    opacity: 1;
+}
+
+.tag-item:hover .tag-actions {
+    opacity: 1;
+}
+
+.btn-icon {
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+}
+
+.btn-icon:hover {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+}
+
+.tag-manager {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.tag-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-6);
+}
+
+.tag-manager-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.tag-form {
+    background-color: var(--color-bg-secondary);
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-6);
+    border: 1px solid var(--color-border);
+}
+
+.tag-form h3 {
+    margin-bottom: var(--spacing-4);
+    font-size: 1.1rem;
+}
+
+.form-group {
+    margin-bottom: var(--spacing-4);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+}
+
+.color-picker {
+    display: flex;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+    padding: var(--spacing-2);
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    border-color: var(--color-text-primary);
+    box-shadow: 0 0 0 2px var(--color-bg-primary);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    justify-content: flex-end;
+}
+
+.tag-list {
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-2);
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast);
+}
+
+.tag-item:hover {
+    background-color: var(--color-bg-tertiary);
+}
+
+.tag-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.tag-color-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.tag-name {
+    flex: 1;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tag-actions {
+    display: flex;
+    gap: var(--spacing-1);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.delete-confirmation {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    opacity: 1;
+}
+
+.tag-item:hover .tag-actions {
+    opacity: 1;
+}
+
+.btn-icon {
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+}
+
+.btn-icon:hover {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+}
+
+.btn-icon.danger:hover {
+    color: var(--color-danger);
+    background-color: #fee2e2;
+}
+
 .empty-state {
     text-align: center;
     color: var(--color-text-tertiary);
     padding: var(--spacing-4);
+}
+
+.shade-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.shade-slider {
+    width: 100%;
+    cursor: pointer;
+}
+
+.shade-preview {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.shade-preview-box {
+    width: 40px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
 }
 
 .tag-children {
