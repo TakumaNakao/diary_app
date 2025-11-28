@@ -168,6 +168,15 @@
 }
 
 .shade-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.shade-preview {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
     font-size: 0.9rem;
     color: var(--color-text-secondary);
 }
@@ -255,11 +264,8 @@
     display: flex;
     justify-content: space-between;
     margin-top: 4px;
-    /* Negative margin to align marks with thumb center at extremes */
-    margin-left: -8px;
-    margin-right: -8px;
     padding: 0 8px;
-    /* Compensate for negative margin */
+    /* Match container padding for alignment */
     pointer-events: none;
 }
 
