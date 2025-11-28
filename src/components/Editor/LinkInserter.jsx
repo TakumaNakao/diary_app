@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar as CalendarIcon, Tag, Link as LinkIcon, X, ChevronRight, ChevronDown, FileText } from 'lucide-react';
+import { Calendar as CalendarIcon, Tag, Link as LinkIcon, X, ChevronRight, ChevronDown, FileText, ChevronLeft } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './LinkInserter.css';
 
@@ -8,6 +8,7 @@ const LinkInserter = ({ onClose, onInsert }) => {
     const [activeTab, setActiveTab] = useState('date'); // 'date' | 'tag'
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [expandedTags, setExpandedTags] = useState({});
+    const [selectedDayEntries, setSelectedDayEntries] = useState(null); // For handling multiple entries on a date
 
     // Date Tab Logic
     const getDaysInMonth = (date) => {
@@ -31,19 +32,21 @@ const LinkInserter = ({ onClose, onInsert }) => {
         // Find entries for this date
         const dayEntries = Object.values(entries).filter(e => e.date === dateStr);
 
-        if (dayEntries.length === 0) {
-            // Link to the daily log even if empty
-            onInsert(`[${dateStr}](/day/${dateStr})`);
-        } else if (dayEntries.length === 1) {
-            // Link to the specific entry
-            const entry = dayEntries[0];
-            const title = entry.content.split('\n')[0].substring(0, 20) || 'Entry';
-            onInsert(`[${dateStr}: ${title}...](/entry/${entry.id})`);
+        if (dayEntries.length <= 1) {
+            if (dayEntries.length === 0) {
+                // Link to the daily log even if empty
+                onInsert(`[${dateStr}](/day/${dateStr})`);
+            } else {
+                // Link to the specific entry
+                const entry = dayEntries[0];
+                const title = entry.content.split('\n')[0].substring(0, 20).replace(/[\[\]]/g, '') || 'Entry';
+                onInsert(`[${dateStr}: ${title}...](/entry/${entry.id})`);
+            }
+            onClose();
         } else {
-            // Link to the daily log if multiple entries
-            onInsert(`[${dateStr} (${dayEntries.length} entries)](/day/${dateStr})`);
+            // Show selection for multiple entries
+            setSelectedDayEntries({ date: dateStr, entries: dayEntries });
         }
-        onClose();
     };
 
     const renderCalendar = () => {
@@ -174,17 +177,51 @@ const LinkInserter = ({ onClose, onInsert }) => {
 
                 <div className="link-content">
                     {activeTab === 'date' ? (
-                        <div className="date-selector">
-                            <div className="mini-calendar-header">
-                                <button onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1)))}>&lt;</button>
-                                <span>{selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
-                                <button onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() + 1)))}>&gt;</button>
+                        selectedDayEntries ? (
+                            <div className="entry-selection-list">
+                                <div className="selection-header">
+                                    <button onClick={() => setSelectedDayEntries(null)} className="btn-icon">
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <span>{selectedDayEntries.date}</span>
+                                </div>
+                                <button
+                                    className="tag-entry-item"
+                                    onClick={() => {
+                                        onInsert(`[${selectedDayEntries.date} (Daily Log)](/day/${selectedDayEntries.date})`);
+                                        onClose();
+                                    }}
+                                >
+                                    <CalendarIcon size={14} />
+                                    <span className="entry-preview">Link to Daily Log Page</span>
+                                </button>
+                                <div className="divider"></div>
+                                {selectedDayEntries.entries.map(entry => (
+                                    <button
+                                        key={entry.id}
+                                        className="tag-entry-item"
+                                        onClick={() => handleEntryClick(entry)}
+                                    >
+                                        <FileText size={14} />
+                                        <span className="entry-preview">
+                                            {entry.content.split('\n')[0].substring(0, 30).replace(/[\[\]]/g, '') || 'No content'}
+                                        </span>
+                                    </button>
+                                ))}
                             </div>
-                            <div className="mini-calendar-grid">
-                                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <div key={d} className="mini-weekday">{d}</div>)}
-                                {renderCalendar()}
+                        ) : (
+                            <div className="date-selector">
+                                <div className="mini-calendar-header">
+                                    <button onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1)))}>&lt;</button>
+                                    <span>{selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+                                    <button onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() + 1)))}>&gt;</button>
+                                </div>
+                                <div className="mini-calendar-grid">
+                                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <div key={d} className="mini-weekday">{d}</div>)}
+                                    {renderCalendar()}
+                                </div>
                             </div>
-                        </div>
+                        )
                     ) : (
                         <div className="tag-selector">
                             {renderTagTree()}
