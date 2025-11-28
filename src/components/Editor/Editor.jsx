@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Eye, Edit2, ArrowLeft, Tag } from 'lucide-react';
+import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
+import LinkInserter from './LinkInserter';
 import './Editor.css';
 
 const Editor = () => {
@@ -18,6 +19,7 @@ const Editor = () => {
     const [entryDate, setEntryDate] = useState(dateParam || new Date().toISOString().split('T')[0]);
     const [mode, setMode] = useState('edit'); // 'edit' | 'preview'
     const [showTagSelector, setShowTagSelector] = useState(false);
+    const [showLinkInserter, setShowLinkInserter] = useState(false);
 
     // Track if this is the initial load to avoid auto-saving on mount
     const isInitialLoad = useRef(true);
@@ -110,6 +112,25 @@ const Editor = () => {
         );
     };
 
+    const handleInsertLink = (linkText) => {
+        const textarea = document.querySelector('.editor-textarea');
+        if (textarea) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const newContent = content.substring(0, start) + linkText + content.substring(end);
+            setContent(newContent);
+
+            // Restore focus and cursor position (after inserted text)
+            setTimeout(() => {
+                textarea.focus();
+                textarea.setSelectionRange(start + linkText.length, start + linkText.length);
+            }, 0);
+        } else {
+            setContent(prev => prev + linkText);
+        }
+        setShowLinkInserter(false);
+    };
+
 
 
     return (
@@ -149,6 +170,15 @@ const Editor = () => {
                             </div>
                         )}
                     </div>
+
+                    <button
+                        className={`btn ${showLinkInserter ? 'btn-primary' : 'btn-ghost'}`}
+                        onClick={() => setShowLinkInserter(true)}
+                        title="Insert Link"
+                    >
+                        <LinkIcon size={16} style={{ marginRight: 8 }} /> Link
+                    </button>
+
                     <div className="mode-toggle">
                         <button
                             className={`btn ${mode === 'edit' ? 'btn-primary' : 'btn-ghost'}`}
@@ -178,11 +208,43 @@ const Editor = () => {
                     />
                 ) : (
                     <div className="editor-preview markdown-body">
-                        <ReactMarkdown>{content}</ReactMarkdown>
+                        <ReactMarkdown
+                            components={{
+                                a: ({ node, ...props }) => {
+                                    const isInternal = props.href && (
+                                        props.href.startsWith('/day/') ||
+                                        props.href.startsWith('/entry/') ||
+                                        props.href.startsWith('/tag/')
+                                    );
+
+                                    if (isInternal) {
+                                        return (
+                                            <a
+                                                {...props}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    navigate(props.href);
+                                                }}
+                                                style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
+                                            />
+                                        );
+                                    }
+                                    return <a {...props} target="_blank" rel="noopener noreferrer" />;
+                                }
+                            }}
+                        >
+                            {content}
+                        </ReactMarkdown>
                         {content.trim() === '' && <p className="empty-preview">Nothing written yet.</p>}
                     </div>
                 )}
             </div>
+            {showLinkInserter && (
+                <LinkInserter
+                    onClose={() => setShowLinkInserter(false)}
+                    onInsert={handleInsertLink}
+                />
+            )}
         </div>
     );
 };
