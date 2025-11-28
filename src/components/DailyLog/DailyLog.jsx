@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { Plus, Calendar as CalendarIcon, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './DailyLog.css';
@@ -37,8 +38,9 @@ const DailyLog = () => {
                 ) : (
                     dailyEntries.map(entry => (
                         <Link key={entry.id} to={`/entry/${entry.id}`} className="entry-card">
-                            <div className="entry-preview">
-                                {entry.content.slice(0, 150) || <span className="italic-text">No content</span>}
+                            <div className="entry-preview markdown-body">
+                                <ReactMarkdown>{entry.content}</ReactMarkdown>
+                                {entry.content.length === 0 && <span className="italic-text">No content</span>}
                             </div>
                             <div className="entry-tags">
                                 {entry.tags && entry.tags.map(tId => {

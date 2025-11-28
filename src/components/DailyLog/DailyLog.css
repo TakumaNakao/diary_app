@@ -42,6 +42,7 @@
     gap: var(--spacing-3);
     text-decoration: none;
     color: inherit;
+    overflow: hidden;
 }
 
 .entry-card:hover {
@@ -54,6 +55,30 @@
     color: var(--color-text-primary);
     font-size: 1rem;
     line-height: 1.5;
+    max-height: 150px;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+/* Markdown styles within preview */
+.entry-preview h1,
+.entry-preview h2,
+.entry-preview h3 {
+    font-size: 1.1em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+.entry-preview p {
+    margin-bottom: 0.5em;
+}
+
+.entry-preview ul,
+.entry-preview ol {
+    padding-left: 1.5em;
+    margin-bottom: 0.5em;
 }
 
 .italic-text {
