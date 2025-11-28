@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { Tag, Calendar, ChevronRight } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './EntryList.css';
@@ -53,9 +54,8 @@ const EntryList = () => {
                                 </div>
                                 <ChevronRight size={16} className="entry-arrow" />
                             </div>
-                            <div className="entry-preview">
-                                {entry.content.slice(0, 150)}
-                                {entry.content.length > 150 ? '...' : ''}
+                            <div className="entry-preview markdown-body">
+                                <ReactMarkdown>{entry.content}</ReactMarkdown>
                                 {entry.content.length === 0 && <span className="italic-text">No content</span>}
                             </div>
                             <div className="entry-tags">

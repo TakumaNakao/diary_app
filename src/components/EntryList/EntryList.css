@@ -7,7 +7,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--spacing-8);
+    margin-bottom: var(--spacing-6);
     padding-bottom: var(--spacing-4);
     border-bottom: 1px solid var(--color-border);
 }
@@ -18,18 +18,18 @@
     gap: var(--spacing-3);
 }
 
-.tag-header-info h2 {
+.tag-icon-large {
+    color: var(--color-primary);
+}
+
+.entry-list-header h2 {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--color-text-primary);
 }
 
-.tag-icon-large {
-    color: var(--color-primary);
-}
-
 .entry-count {
-    color: var(--color-text-secondary);
+    color: var(--color-text-tertiary);
     font-size: 0.875rem;
 }
 
@@ -49,6 +49,10 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    /* Ensure content doesn't spill out */
 }
 
 .entry-card:hover {
@@ -61,25 +65,55 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: var(--color-text-tertiary);
+    font-size: 0.875rem;
 }
 
 .entry-date {
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
-    color: var(--color-text-secondary);
-    font-size: 0.875rem;
-    font-weight: 500;
 }
 
 .entry-arrow {
-    color: var(--color-text-tertiary);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.entry-card:hover .entry-arrow {
+    opacity: 1;
 }
 
 .entry-preview {
     color: var(--color-text-primary);
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.5;
+    max-height: 150px;
+    /* Limit height for preview */
+    overflow: hidden;
+    position: relative;
+    /* Add a fade out effect at the bottom */
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+/* Markdown styles within preview */
+.entry-preview h1,
+.entry-preview h2,
+.entry-preview h3 {
+    font-size: 1.1em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+.entry-preview p {
+    margin-bottom: 0.5em;
+}
+
+.entry-preview ul,
+.entry-preview ol {
+    padding-left: 1.5em;
+    margin-bottom: 0.5em;
 }
 
 .italic-text {
@@ -91,7 +125,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-2);
-    margin-top: var(--spacing-1);
+    margin-top: auto;
+    /* Push to bottom if height is fixed, though here it's flex column */
 }
 
 .entry-tag-pill {
@@ -104,6 +139,6 @@
 
 .empty-list {
     text-align: center;
-    color: var(--color-text-tertiary);
     padding: var(--spacing-8);
+    color: var(--color-text-tertiary);
 }
