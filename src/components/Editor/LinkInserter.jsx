@@ -137,8 +137,8 @@ const LinkInserter = ({ onClose, onInsert }) => {
                                     onClick={() => handleEntryClick(entry)}
                                 >
                                     <FileText size={12} />
-                                    <span className="entry-date">{new Date(entry.date).toLocaleDateString()}</span>
-                                    <span className="entry-preview">
+                                    <span className="link-entry-date">{new Date(entry.date).toLocaleDateString()}</span>
+                                    <span className="link-entry-preview">
                                         {entry.content.split('\n')[0].substring(0, 20) || 'No content'}
                                     </span>
                                 </button>
@@ -193,7 +193,7 @@ const LinkInserter = ({ onClose, onInsert }) => {
                                     }}
                                 >
                                     <CalendarIcon size={14} />
-                                    <span className="entry-preview">Link to Daily Log Page</span>
+                                    <span className="link-entry-preview">Link to Daily Log Page</span>
                                 </button>
                                 <div className="divider"></div>
                                 {selectedDayEntries.entries.map(entry => (
@@ -203,7 +203,7 @@ const LinkInserter = ({ onClose, onInsert }) => {
                                         onClick={() => handleEntryClick(entry)}
                                     >
                                         <FileText size={14} />
-                                        <span className="entry-preview">
+                                        <span className="link-entry-preview">
                                             {entry.content.split('\n')[0].substring(0, 30).replace(/[\[\]]/g, '') || 'No content'}
                                         </span>
                                     </button>
