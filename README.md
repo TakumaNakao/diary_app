@@ -1,16 +1,150 @@
-# React + Vite
+# Diary App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+個人的な日記を管理・記録するためのWebアプリケーションです。日々の出来事や思考を記録し、タグで分類・検索することができます。
 
-Currently, two official plugins are available:
+## 主な機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 📝 日記の作成・編集
+- カレンダーから日付を選択して日記を作成
+- Markdownエディタによる豊かな表現
+- リアルタイムプレビュー機能
+- 1日に複数のエントリーを記録可能
 
-## React Compiler
+### 🏷️ タグ管理
+- 階層構造のタグシステム
+- 親タグと子タグの関係性
+- タグごとの色分け（5段階の濃淡調整可能）
+- 子タグは親タグの色を自動継承
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔍 検索機能
+- 全文検索（タイトル・本文）
+- タグによる絞り込み
+- 日付範囲指定
+- 複数条件の組み合わせ検索
+- 検索結果から直接エントリーへアクセス
 
-## Expanding the ESLint configuration
+### 📅 カレンダービュー
+- 月間カレンダー表示
+- エントリーがある日を視覚的に確認
+- 日付をクリックして直接その日の日記にアクセス
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 💾 データ保存
+- ブラウザのlocalStorageに安全に保存
+- サーバー不要でオフラインでも動作
+
+## 技術スタック
+
+- **フロントエンド**: React 18
+- **ルーティング**: React Router v6
+- **スタイリング**: CSS（カスタムプロパティ使用）
+- **エディター**: React Markdown
+- **アイコン**: Lucide React
+- **ビルドツール**: Vite
+- **ストレージ**: LocalStorage API
+
+## セットアップ
+
+### 必要な環境
+- Node.js 16.0以上
+- npm または yarn
+
+### インストール
+
+1. リポジトリをクローン
+```bash
+git clone <repository-url>
+cd diary_app
+```
+
+2. 依存パッケージをインストール
+```bash
+npm install
+```
+
+## 起動方法
+
+### 開発サーバーの起動
+```bash
+npm run dev
+```
+
+ブラウザで `http://localhost:5173` を開くとアプリケーションが表示されます。
+
+### プロダクションビルド
+```bash
+npm run build
+```
+
+ビルドされたファイルは `dist` ディレクトリに出力されます。
+
+### プレビュー
+```bash
+npm run preview
+```
+
+ビルドされたアプリケーションをローカルでプレビューできます。
+
+## 使い方
+
+### 1. 日記を作成する
+1. カレンダーから日付を選択
+2. 「+ New Entry」ボタンをクリック
+3. タイトルと本文を入力
+4. 必要に応じてタグを追加
+5. 「Save」ボタンで保存
+
+### 2. タグを管理する
+1. サイドバーの「Manage Tags」をクリック
+2. 「New Root Tag」で新しいタグを作成
+3. タグの色と濃淡を選択
+4. 子タグを作成する場合は、親タグの「Add Child」をクリック
+
+### 3. 日記を検索する
+1. サイドバーの「Search」をクリック
+2. キーワード、タグ、日付範囲を指定
+3. 「検索」ボタンをクリック
+4. 検索結果から気になるエントリーをクリック
+
+## プロジェクト構成
+
+```
+diary_app/
+├── src/
+│   ├── components/          # Reactコンポーネント
+│   │   ├── Calendar/        # カレンダービュー
+│   │   ├── DailyLog/        # 日次ログ表示
+│   │   ├── Editor/          # Markdownエディター
+│   │   ├── EntryList/       # エントリーリスト
+│   │   ├── Layout/          # レイアウト・ナビゲーション
+│   │   ├── Search/          # 検索機能
+│   │   └── TagManager/      # タグ管理
+│   ├── context/             # React Context
+│   │   └── DiaryContext.jsx # 状態管理
+│   ├── utils/               # ユーティリティ
+│   │   ├── color.js         # 色関連の処理
+│   │   └── storage.js       # LocalStorage操作
+│   ├── App.jsx              # アプリケーションルート
+│   └── main.jsx             # エントリーポイント
+├── public/                  # 静的ファイル
+├── index.html               # HTMLテンプレート
+├── vite.config.js           # Vite設定
+└── package.json             # パッケージ情報
+```
+
+## データの保存場所
+
+すべてのデータはブラウザのlocalStorageに保存されます（キー: `diary_data`）。
+データをバックアップする場合は、開発者ツールからlocalStorageの内容をエクスポートしてください。
+
+## ライセンス
+
+MIT License
+
+## 今後の追加予定機能
+
+- [ ] データのエクスポート/インポート機能
+- [ ] 画像添付機能
+- [ ] テンプレート機能
+- [ ] PWA化（オフライン対応）
+- [ ] 統計・振り返り機能
+- [ ] 感情トラッキング
