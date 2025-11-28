@@ -6,7 +6,7 @@ import './Calendar.css';
 
 const Calendar = () => {
     const navigate = useNavigate();
-    const { entries } = useDiary();
+    const { entries, tags } = useDiary();
     const [currentDate, setCurrentDate] = useState(new Date());
 
     const getDaysInMonth = (date) => {
@@ -56,7 +56,16 @@ const Calendar = () => {
             const dateStr = `${year}-${month}-${dayStr}`;
 
             // Check if any entry exists for this date
-            const hasEntry = Object.values(entries).some(entry => entry.date === dateStr);
+            const dayEntries = Object.values(entries).filter(entry => entry.date === dateStr);
+            const hasEntry = dayEntries.length > 0;
+
+            // Collect unique tag IDs for this day
+            const dayTagIds = new Set();
+            dayEntries.forEach(entry => {
+                if (entry.tags) {
+                    entry.tags.forEach(tagId => dayTagIds.add(tagId));
+                }
+            });
 
             const isToday = new Date().toDateString() === new Date(year, currentDate.getMonth(), i).toDateString();
 
@@ -67,7 +76,26 @@ const Calendar = () => {
                     onClick={() => handleDateClick(i)}
                 >
                     <span className="day-number">{i}</span>
-                    {hasEntry && <div className="entry-indicator"></div>}
+                    {hasEntry && (
+                        <div className="entry-indicators">
+                            {dayTagIds.size > 0 ? (
+                                Array.from(dayTagIds).map(tagId => {
+                                    const tag = tags[tagId];
+                                    if (!tag) return null;
+                                    return (
+                                        <div
+                                            key={tagId}
+                                            className="tag-dot"
+                                            style={{ backgroundColor: tag.color || '#6B7280' }}
+                                            title={tag.name}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <div className="tag-dot default" />
+                            )}
+                        </div>
+                    )}
                 </div>
             );
         }
