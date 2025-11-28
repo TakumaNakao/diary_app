@@ -41,8 +41,8 @@ const Search = () => {
     };
 
     const handleEntryClick = (entry) => {
-        // Navigate to the daily log page of the entry's date
-        navigate(`/?date=${entry.date}`);
+        // Navigate to the entry detail page
+        navigate(`/entry/${entry.id}`);
     };
 
     const formatDate = (dateString) => {
