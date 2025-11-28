@@ -63,7 +63,14 @@ const EntryList = () => {
                                     const t = tags[tId];
                                     if (!t) return null;
                                     return (
-                                        <span key={tId} className="entry-tag-pill">
+                                        <span
+                                            key={tId}
+                                            className="entry-tag-pill"
+                                            style={{
+                                                backgroundColor: t.color || '#6B7280',
+                                                color: 'white'
+                                            }}
+                                        >
                                             {t.name}
                                         </span>
                                     );

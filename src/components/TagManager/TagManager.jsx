@@ -9,6 +9,18 @@ const TagManager = () => {
     const [editingId, setEditingId] = useState(null);
     const [tagName, setTagName] = useState('');
     const [parentId, setParentId] = useState(null);
+    const [tagColor, setTagColor] = useState('#6B7280');
+
+    const PRESET_COLORS = [
+        '#EF4444', // Red
+        '#F59E0B', // Amber
+        '#10B981', // Green
+        '#3B82F6', // Blue
+        '#8B5CF6', // Purple
+        '#EC4899', // Pink
+        '#6B7280', // Gray
+        '#14B8A6', // Teal
+    ];
 
     const getRootTags = () => Object.values(tags).filter(tag => !tag.parentId);
     const getChildTags = (pid) => Object.values(tags).filter(tag => tag.parentId === pid);
@@ -19,7 +31,8 @@ const TagManager = () => {
         const tag = {
             id: editingId, // If null, saveTag generates new ID
             name: tagName,
-            parentId: parentId
+            parentId: parentId,
+            color: tagColor
         };
 
         saveTag(tag);
@@ -36,6 +49,7 @@ const TagManager = () => {
         setEditingId(tag.id);
         setTagName(tag.name);
         setParentId(tag.parentId);
+        setTagColor(tag.color || '#6B7280');
         setIsAdding(true);
     };
 
@@ -51,6 +65,7 @@ const TagManager = () => {
         setEditingId(null);
         setTagName('');
         setParentId(null);
+        setTagColor('#6B7280');
     };
 
     const renderTagTree = (tagList, level = 0) => {
@@ -58,7 +73,7 @@ const TagManager = () => {
             <div key={tag.id} className="tag-item-container" style={{ marginLeft: level * 20 }}>
                 <div className="tag-item">
                     <div className="tag-info">
-                        <Tag size={16} className="tag-icon" />
+                        <div className="tag-color-indicator" style={{ backgroundColor: tag.color || '#6B7280' }}></div>
                         <span className="tag-name">{tag.name}</span>
                     </div>
                     <div className="tag-actions">
@@ -110,6 +125,21 @@ const TagManager = () => {
                                     <option key={t.id} value={t.id}>{t.name}</option>
                                 ))}
                         </select>
+                    </div>
+                    <div className="form-group">
+                        <label>Color</label>
+                        <div className="color-picker">
+                            {PRESET_COLORS.map(color => (
+                                <button
+                                    key={color}
+                                    type="button"
+                                    className={`color-option ${tagColor === color ? 'selected' : ''}`}
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => setTagColor(color)}
+                                    title={color}
+                                />
+                            ))}
+                        </div>
                     </div>
                     <div className="form-actions">
                         <button onClick={handleSave} className="btn btn-primary">Save</button>

@@ -87,7 +87,8 @@ export const StorageService = {
 
         data.tags[id] = {
             ...tag,
-            id
+            id,
+            color: tag.color || '#6B7280' // Default gray color
         };
 
         StorageService.saveData(data);

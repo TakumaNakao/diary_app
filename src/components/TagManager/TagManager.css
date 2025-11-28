@@ -53,6 +53,31 @@
     font-size: 1rem;
 }
 
+.color-picker {
+    display: flex;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+    padding: var(--spacing-2);
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    border-color: var(--color-text-primary);
+    box-shadow: 0 0 0 2px var(--color-bg-primary);
+}
+
 .form-actions {
     display: flex;
     gap: var(--spacing-2);
@@ -85,12 +110,21 @@
     gap: var(--spacing-2);
 }
 
-.tag-icon {
-    color: var(--color-text-tertiary);
+.tag-color-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    flex-shrink: 0;
 }
 
 .tag-name {
-    font-weight: 500;
+    flex: 1;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .tag-actions {

@@ -123,6 +123,14 @@
     padding: 0 var(--spacing-2);
 }
 
+.tag-color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    flex-shrink: 0;
+}
+
 .main-content {
     flex: 1;
     padding: var(--spacing-8);

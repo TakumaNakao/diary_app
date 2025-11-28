@@ -41,7 +41,7 @@ const Layout = () => {
                             className="nav-item-link"
                             style={{ paddingLeft: `calc(var(--spacing-3) + ${level * 12}px)` }}
                         >
-                            <Tag size={16} className="nav-icon" />
+                            <div className="tag-color-dot" style={{ backgroundColor: tag.color || '#6B7280' }}></div>
                             <span className="nav-text">{tag.name}</span>
                         </Link>
                         {hasChildren && (
