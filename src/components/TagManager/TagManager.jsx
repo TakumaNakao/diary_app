@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Edit2, Folder, FolderOpen, Tag } from 'lucide-react';
+import { Plus, Trash2, Edit2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './TagManager.css';
 
@@ -10,6 +10,7 @@ const TagManager = () => {
     const [tagName, setTagName] = useState('');
     const [parentId, setParentId] = useState(null);
     const [tagColor, setTagColor] = useState('#6B7280');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const PRESET_COLORS = [
         '#EF4444', // Red
@@ -26,12 +27,35 @@ const TagManager = () => {
     const getChildTags = (pid) => Object.values(tags).filter(tag => tag.parentId === pid);
 
     const handleSave = () => {
-        if (!tagName.trim()) return;
+        if (!tagName.trim()) {
+            setErrorMessage('Tag name cannot be empty.');
+            return;
+        }
+
+        // Normalize parentId: treat empty string as null
+        const normalizedParentId = parentId || null;
+
+        // Check for duplicate names at the same level (same parentId)
+        const siblingsWithSameName = Object.values(tags).filter(tag => {
+            // Normalize the tag's parentId for comparison
+            const tagParentId = tag.parentId || null;
+
+            return (
+                tag.id !== editingId && // Exclude the current tag if editing
+                tagParentId === normalizedParentId &&
+                tag.name.toLowerCase() === tagName.trim().toLowerCase()
+            );
+        });
+
+        if (siblingsWithSameName.length > 0) {
+            setErrorMessage(`A tag named "${tagName}" already exists at this level.`);
+            return;
+        }
 
         const tag = {
             id: editingId, // If null, saveTag generates new ID
-            name: tagName,
-            parentId: parentId,
+            name: tagName.trim(),
+            parentId: normalizedParentId,
             color: tagColor
         };
 
@@ -40,15 +64,14 @@ const TagManager = () => {
     };
 
     const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this tag?')) {
-            deleteTag(id);
-        }
+        // Delete directly without confirmation
+        deleteTag(id);
     };
 
     const startEdit = (tag) => {
         setEditingId(tag.id);
         setTagName(tag.name);
-        setParentId(tag.parentId);
+        setParentId(tag.parentId || null);
         setTagColor(tag.color || '#6B7280');
         setIsAdding(true);
     };
@@ -66,6 +89,7 @@ const TagManager = () => {
         setTagName('');
         setParentId(null);
         setTagColor('#6B7280');
+        setErrorMessage('');
     };
 
     const renderTagTree = (tagList, level = 0) => {
@@ -105,6 +129,18 @@ const TagManager = () => {
             {isAdding && (
                 <div className="tag-form">
                     <h3>{editingId ? 'Edit Tag' : 'New Tag'}</h3>
+                    {errorMessage && (
+                        <div className="error-message" style={{
+                            padding: 'var(--spacing-2) var(--spacing-3)',
+                            backgroundColor: '#fee2e2',
+                            color: '#dc2626',
+                            borderRadius: 'var(--radius-md)',
+                            marginBottom: 'var(--spacing-3)',
+                            fontSize: '0.875rem'
+                        }}>
+                            {errorMessage}
+                        </div>
+                    )}
                     <div className="form-group">
                         <label>Name</label>
                         <input
