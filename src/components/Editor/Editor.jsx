@@ -23,6 +23,24 @@ const Editor = () => {
     // Track if this is the initial load to avoid auto-saving on mount
     const isInitialLoad = useRef(true);
     const saveTimeoutRef = useRef(null);
+    const tagSelectorRef = useRef(null);
+
+    // Close tag selector when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (tagSelectorRef.current && !tagSelectorRef.current.contains(event.target)) {
+                setShowTagSelector(false);
+            }
+        };
+
+        if (showTagSelector) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showTagSelector]);
 
     // Load existing entry or reset for new
     useEffect(() => {
@@ -106,7 +124,7 @@ const Editor = () => {
                     <h2>{new Date(entryDate).toLocaleDateString(undefined, { dateStyle: 'full' })}</h2>
                 </div>
                 <div className="editor-actions">
-                    <div className="tag-selector-container" style={{ position: 'relative' }}>
+                    <div className="tag-selector-container" style={{ position: 'relative' }} ref={tagSelectorRef}>
                         <button
                             className="btn btn-ghost"
                             onClick={() => setShowTagSelector(!showTagSelector)}
