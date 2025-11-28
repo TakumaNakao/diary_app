@@ -134,6 +134,13 @@
     transition: opacity var(--transition-fast);
 }
 
+.delete-confirmation {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    opacity: 1;
+}
+
 .tag-item:hover .tag-actions {
     opacity: 1;
 }
