@@ -1,0 +1,109 @@
+.entry-list-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.entry-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-8);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.tag-header-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.tag-header-info h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.tag-icon-large {
+    color: var(--color-primary);
+}
+
+.entry-count {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+}
+
+.entries-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.entry-card {
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid transparent;
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+.entry-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-light);
+}
+
+.entry-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.entry-date {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.entry-arrow {
+    color: var(--color-text-tertiary);
+}
+
+.entry-preview {
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.italic-text {
+    font-style: italic;
+    color: var(--color-text-tertiary);
+}
+
+.entry-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-1);
+}
+
+.entry-tag-pill {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.empty-list {
+    text-align: center;
+    color: var(--color-text-tertiary);
+    padding: var(--spacing-8);
+}
