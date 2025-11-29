@@ -95,7 +95,7 @@ const Search = () => {
                                     style={{
                                         backgroundColor: selectedTags.includes(tag.id) ? tag.color : 'transparent',
                                         borderColor: tag.color,
-                                        color: selectedTags.includes(tag.id) ? '#fff' : tag.color
+                                        color: selectedTags.includes(tag.id) ? '#fff' : 'var(--color-text-primary)'
                                     }}
                                     onClick={() => handleTagToggle(tag.id)}
                                 >
@@ -173,7 +173,10 @@ const Search = () => {
                                                 <span
                                                     key={tagId}
                                                     className="result-tag"
-                                                    style={{ backgroundColor: getTagColor(tagId) }}
+                                                    style={{
+                                                        backgroundColor: getTagColor(tagId),
+                                                        color: '#fff'
+                                                    }}
                                                 >
                                                     {getTagName(tagId)}
                                                 </span>
