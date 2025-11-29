@@ -43,13 +43,34 @@ const Editor = () => {
         };
     }, [showTagSelector]);
 
+    const lastIdRef = useRef(null);
+
+    // Manage mode transitions
+    useEffect(() => {
+        // If it's a new entry, always start in edit mode
+        if (id === 'new') {
+            setMode('edit');
+        }
+        // If we're navigating to an existing entry
+        else if (id) {
+            // If we just came from 'new' (created a new entry), keep the current mode (likely 'edit')
+            if (lastIdRef.current === 'new') {
+                // Do nothing, preserve mode
+            }
+            // If we navigated from another existing entry or fresh load, default to preview
+            else if (lastIdRef.current !== id) {
+                setMode('preview');
+            }
+        }
+        lastIdRef.current = id;
+    }, [id]);
+
     // Load existing entry or reset for new
     useEffect(() => {
         if (id === 'new') {
             setContent('');
             setSelectedTags([]);
             setEntryDate(dateParam || new Date().toISOString().split('T')[0]);
-            setMode('edit');
         } else if (id) {
             const entry = entries[id];
             if (entry) {
