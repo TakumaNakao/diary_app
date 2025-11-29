@@ -130,18 +130,13 @@
 .tag-actions {
     display: flex;
     gap: var(--spacing-1);
-    opacity: 0;
-    transition: opacity var(--transition-fast);
+    opacity: 1;
 }
 
 .delete-confirmation {
     display: flex;
     align-items: center;
     gap: var(--spacing-1);
-    opacity: 1;
-}
-
-.tag-item:hover .tag-actions {
     opacity: 1;
 }
 
