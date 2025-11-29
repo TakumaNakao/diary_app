@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { StorageService } from '../utils/storage';
+import Fuse from 'fuse.js';
 
 const DiaryContext = createContext();
 
@@ -57,54 +58,57 @@ export const DiaryProvider = ({ children }) => {
         });
     };
 
+
+
     const searchEntries = ({ query = '', tagIds = [], startDate = null, endDate = null }) => {
-        const allEntries = Object.values(entries);
+        let filteredEntries = Object.values(entries);
 
-        return allEntries.filter(entry => {
-            // Text search (title + content)
-            if (query.trim()) {
-                const searchText = query.toLowerCase();
-                const titleMatch = entry.title?.toLowerCase().includes(searchText);
-                const contentMatch = entry.content?.toLowerCase().includes(searchText);
-
-                if (!titleMatch && !contentMatch) {
-                    return false;
-                }
-            }
-
-            // Tag filter
-            if (tagIds.length > 0) {
+        // 1. Filter by Tags (Strict)
+        if (tagIds.length > 0) {
+            filteredEntries = filteredEntries.filter(entry => {
                 const entryTags = entry.tags || [];
-                const hasAllTags = tagIds.every(tagId => entryTags.includes(tagId));
+                return tagIds.every(tagId => entryTags.includes(tagId));
+            });
+        }
 
-                if (!hasAllTags) {
-                    return false;
-                }
-            }
-
-            // Date range filter
-            if (startDate || endDate) {
+        // 2. Filter by Date (Strict)
+        if (startDate || endDate) {
+            filteredEntries = filteredEntries.filter(entry => {
                 const entryDate = new Date(entry.date);
 
                 if (startDate) {
                     const start = new Date(startDate);
                     start.setHours(0, 0, 0, 0);
-                    if (entryDate < start) {
-                        return false;
-                    }
+                    if (entryDate < start) return false;
                 }
 
                 if (endDate) {
                     const end = new Date(endDate);
                     end.setHours(23, 59, 59, 999);
-                    if (entryDate > end) {
-                        return false;
-                    }
+                    if (entryDate > end) return false;
                 }
-            }
 
-            return true;
-        }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date descending
+                return true;
+            });
+        }
+
+        // 3. Fuzzy Search (if query exists)
+        if (query.trim()) {
+            const fuse = new Fuse(filteredEntries, {
+                keys: [
+                    { name: 'title', weight: 0.7 },
+                    { name: 'content', weight: 0.3 }
+                ],
+                threshold: 0.4,
+                includeScore: true
+            });
+
+            const results = fuse.search(query.trim());
+            return results.map(result => result.item);
+        }
+
+        // 4. Default Sort (Date Descending) if no query
+        return filteredEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
     };
 
 
