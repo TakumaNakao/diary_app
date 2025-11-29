@@ -12,7 +12,7 @@ import Search from './components/Search/Search';
 function App() {
   return (
     <DiaryProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<div className="flex justify-center"><Calendar /></div>} />
