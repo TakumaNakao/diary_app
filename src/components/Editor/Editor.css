@@ -156,6 +156,7 @@
     font-size: 0.9em;
 }
 
+/* Mobile styles */
 @media (max-width: 640px) {
     .editor-header {
         flex-direction: column;
@@ -176,6 +177,25 @@
 
     .tag-selector-container {
         position: static !important;
-        /* Allow dropdown to be positioned relative to a wider container if needed, or keep relative but handle width */
+    }
+
+    .tag-dropdown {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        right: auto;
+        max-width: 90vw;
+        max-height: 70vh;
+        z-index: 1000;
+    }
+}
+
+/* Narrow desktop / tablet styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .tag-dropdown {
+        left: 0;
+        right: auto;
+        max-width: 250px;
     }
 }
