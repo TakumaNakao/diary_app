@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
 import { Plus, Calendar as CalendarIcon, ChevronRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
+import { getContrastTextColor } from '../../utils/colorUtils';
 import './DailyLog.css';
 
 const DailyLog = () => {
@@ -68,13 +69,14 @@ const DailyLog = () => {
                                     {entry.tags && entry.tags.map(tId => {
                                         const t = tags[tId];
                                         if (!t) return null;
+                                        const bgColor = t.color || '#6B7280';
                                         return (
                                             <span
                                                 key={tId}
                                                 className="entry-tag-pill"
                                                 style={{
-                                                    backgroundColor: t.color || '#6B7280',
-                                                    color: 'white'
+                                                    backgroundColor: bgColor,
+                                                    color: getContrastTextColor(bgColor)
                                                 }}
                                             >
                                                 {t.name}

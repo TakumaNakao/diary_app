@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Calendar, Tag as TagIcon, X } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
+import { getContrastTextColor } from '../../utils/colorUtils';
 import './Search.css';
 
 const Search = () => {
@@ -169,18 +170,21 @@ const Search = () => {
                                     </p>
                                     {entry.tags && entry.tags.length > 0 && (
                                         <div className="result-tags">
-                                            {entry.tags.map(tagId => (
-                                                <span
-                                                    key={tagId}
-                                                    className="result-tag"
-                                                    style={{
-                                                        backgroundColor: getTagColor(tagId),
-                                                        color: '#fff'
-                                                    }}
-                                                >
-                                                    {getTagName(tagId)}
-                                                </span>
-                                            ))}
+                                            {entry.tags.map(tagId => {
+                                                const bgColor = getTagColor(tagId);
+                                                return (
+                                                    <span
+                                                        key={tagId}
+                                                        className="result-tag"
+                                                        style={{
+                                                            backgroundColor: bgColor,
+                                                            color: getContrastTextColor(bgColor)
+                                                        }}
+                                                    >
+                                                        {getTagName(tagId)}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
