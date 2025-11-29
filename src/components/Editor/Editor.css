@@ -175,19 +175,10 @@
         flex-wrap: wrap;
     }
 
-    .tag-selector-container {
-        position: static !important;
-    }
-
     .tag-dropdown {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        left: 0;
         right: auto;
-        max-width: 90vw;
-        max-height: 70vh;
-        z-index: 1000;
+        max-width: calc(100vw - var(--spacing-8));
     }
 }
 
