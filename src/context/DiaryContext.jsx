@@ -51,6 +51,25 @@ export const DiaryProvider = ({ children }) => {
 
     const deleteTag = (id) => {
         StorageService.deleteTag(id);
+
+        // Remove this tag from all entries that have it
+        const updatedEntries = { ...entries };
+        let hasChanges = false;
+
+        Object.values(updatedEntries).forEach(entry => {
+            if (entry.tags && entry.tags.includes(id)) {
+                const newTags = entry.tags.filter(tagId => tagId !== id);
+                const updatedEntry = { ...entry, tags: newTags };
+                updatedEntries[entry.id] = updatedEntry;
+                StorageService.saveEntry(updatedEntry); // Save updated entry to storage
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            setEntries(updatedEntries);
+        }
+
         setTags(prev => {
             const newTags = { ...prev };
             delete newTags[id];
