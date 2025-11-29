@@ -148,12 +148,25 @@
     margin-left: 0;
 }
 
+/* Inline code styling */
 .markdown-body code {
     background-color: var(--color-bg-tertiary);
     padding: 0.2em 0.4em;
     border-radius: var(--radius-sm);
     font-family: var(--font-mono);
     font-size: 0.9em;
+}
+
+/* Remove background for code blocks (syntax highlighter handles this) */
+.markdown-body pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.markdown-body pre {
+    margin: 1em 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
 }
 
 /* Mobile styles */
