@@ -3,7 +3,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import 'katex/dist/katex.min.css';
 
 const EnhancedMarkdown = ({ children, components = {} }) => {
@@ -14,7 +14,7 @@ const EnhancedMarkdown = ({ children, components = {} }) => {
 
             return !inline ? (
                 <SyntaxHighlighter
-                    style={vscDarkPlus}
+                    style={oneLight}
                     language={language}
                     PreTag="div"
                     {...props}
