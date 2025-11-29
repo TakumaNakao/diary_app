@@ -87,8 +87,13 @@ export const DiaryProvider = ({ children }) => {
         }
     };
 
-    const searchEntries = ({ query = '', tagIds = [], startDate = null, endDate = null }) => {
+    const searchEntries = ({ query = '', tagIds = [], startDate = null, endDate = null, onlyPinned = false }) => {
         let filteredEntries = Object.values(entries);
+
+        // 0. Filter by Pinned (Strict)
+        if (onlyPinned) {
+            filteredEntries = filteredEntries.filter(entry => entry.isPinned);
+        }
 
         // 1. Filter by Tags (Strict)
         if (tagIds.length > 0) {

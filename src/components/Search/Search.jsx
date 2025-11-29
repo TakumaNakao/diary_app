@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search as SearchIcon, Calendar, Tag as TagIcon, X } from 'lucide-react';
+import { Search as SearchIcon, Calendar, Tag as TagIcon, X, Pin } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import { getContrastTextColor } from '../../utils/colorUtils';
 import './Search.css';
@@ -13,6 +13,7 @@ const Search = () => {
     const [selectedTags, setSelectedTags] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [onlyPinned, setOnlyPinned] = useState(false);
     const [searchResults, setSearchResults] = useState(null);
 
     const handleSearch = () => {
@@ -20,7 +21,8 @@ const Search = () => {
             query: searchQuery,
             tagIds: selectedTags,
             startDate: startDate || null,
-            endDate: endDate || null
+            endDate: endDate || null,
+            onlyPinned
         });
         setSearchResults(results);
     };
@@ -38,6 +40,7 @@ const Search = () => {
         setSelectedTags([]);
         setStartDate('');
         setEndDate('');
+        setOnlyPinned(false);
         setSearchResults(null);
     };
 
@@ -126,6 +129,23 @@ const Search = () => {
                                 onChange={(e) => setEndDate(e.target.value)}
                             />
                         </div>
+                    </div>
+
+                    <div className="filter-group toggle-group">
+                        <label className="toggle-label">
+                            <div className="toggle-switch">
+                                <input
+                                    type="checkbox"
+                                    checked={onlyPinned}
+                                    onChange={(e) => setOnlyPinned(e.target.checked)}
+                                />
+                                <span className="slider"></span>
+                            </div>
+                            <span className="toggle-text">
+                                <Pin size={16} className="toggle-icon" />
+                                ピン留めのみ表示
+                            </span>
+                        </label>
                     </div>
                 </div>
 
