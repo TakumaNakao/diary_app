@@ -109,6 +109,15 @@
     font-size: 0.875rem;
 }
 
+.date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5);
+}
+
+[data-theme="dark"] .date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
 .date-separator {
     color: var(--color-text-secondary);
 }
