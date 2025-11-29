@@ -198,30 +198,17 @@
 }
 
 .tag-dot.default {
-    background-color: var(--color-text-tertiary);
+    justify-content: center;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .calendar-container {
-        padding: var(--spacing-2);
-        height: auto;
-        min-height: 500px;
-    }
+.entry-indicators {
+    position: absolute;
+    bottom: 4px;
+    margin: 0;
+}
 
-    .calendar-day {
-        align-items: center;
-        justify-content: center;
-    }
-
-    .entry-indicators {
-        position: absolute;
-        bottom: 4px;
-        margin: 0;
-    }
-
-    .tag-dot {
-        width: 4px;
-        height: 4px;
-    }
+.tag-dot {
+    width: 4px;
+    height: 4px;
+}
 }
