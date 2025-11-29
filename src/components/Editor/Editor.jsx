@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
 import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import LinkInserter from './LinkInserter';
@@ -229,7 +229,7 @@ const Editor = () => {
                     />
                 ) : (
                     <div className="editor-preview markdown-body">
-                        <ReactMarkdown
+                        <EnhancedMarkdown
                             components={{
                                 a: ({ node, ...props }) => {
                                     const isInternal = props.href && (
@@ -255,7 +255,7 @@ const Editor = () => {
                             }}
                         >
                             {content}
-                        </ReactMarkdown>
+                        </EnhancedMarkdown>
                         {content.trim() === '' && <p className="empty-preview">Nothing written yet.</p>}
                     </div>
                 )}

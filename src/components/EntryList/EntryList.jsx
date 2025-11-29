@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
 import { Tag, Calendar, ChevronRight, Trash2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './EntryList.css';
@@ -77,7 +77,7 @@ const EntryList = () => {
                                     <ChevronRight size={16} className="entry-arrow" />
                                 </div>
                                 <div className="entry-preview markdown-body">
-                                    <ReactMarkdown>{entry.content}</ReactMarkdown>
+                                    <EnhancedMarkdown>{entry.content}</EnhancedMarkdown>
                                     {entry.content.length === 0 && <span className="italic-text">No content</span>}
                                 </div>
                                 <div className="entry-tags">

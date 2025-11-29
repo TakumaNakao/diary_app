@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
 import { Plus, Calendar as CalendarIcon, ChevronRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import './DailyLog.css';
@@ -61,7 +61,7 @@ const DailyLog = () => {
                         <Link key={entry.id} to={`/entry/${entry.id}`} className="entry-card">
                             <div className="entry-content-wrapper">
                                 <div className="entry-preview markdown-body">
-                                    <ReactMarkdown>{entry.content}</ReactMarkdown>
+                                    <EnhancedMarkdown>{entry.content}</EnhancedMarkdown>
                                     {entry.content.length === 0 && <span className="italic-text">No content</span>}
                                 </div>
                                 <div className="entry-tags">
