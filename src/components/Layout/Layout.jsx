@@ -1,12 +1,14 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Calendar as CalendarIcon, Book, Tag, Settings, ChevronRight, ChevronDown, Search as SearchIcon, Menu, X } from 'lucide-react';
+import { Calendar as CalendarIcon, Tag, Settings, ChevronRight, ChevronDown, Search as SearchIcon, Menu, X, Moon, Sun } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useState, useEffect } from 'react';
 import './Layout.css';
 
 const Layout = () => {
     const location = useLocation();
     const { tags } = useDiary();
+    const { theme, toggleTheme } = useTheme();
     const [expandedTags, setExpandedTags] = useState({});
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -117,6 +119,10 @@ const Layout = () => {
                         <Settings size={20} />
                         <span>Manage Tags</span>
                     </Link>
+                    <button onClick={toggleTheme} className="nav-item theme-toggle">
+                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                        <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                    </button>
 
                     <div className="nav-section">
                         <span className="nav-section-title">Tags</span>
@@ -124,6 +130,9 @@ const Layout = () => {
                     </div>
                 </nav>
             </aside>
+
+            {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
+
             <main className="main-content">
                 <Outlet />
             </main>

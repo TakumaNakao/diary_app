@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DiaryProvider } from './context/DiaryContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout/Layout';
 import Calendar from './components/Calendar/Calendar';
 
@@ -11,20 +12,22 @@ import Search from './components/Search/Search';
 
 function App() {
   return (
-    <DiaryProvider>
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<div className="flex justify-center"><Calendar /></div>} />
-            <Route path="day/:date" element={<DailyLog />} />
-            <Route path="entry/:id" element={<Editor />} />
-            <Route path="search" element={<Search />} />
-            <Route path="tags" element={<TagManager />} />
-            <Route path="tag/:tagId" element={<EntryList />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </DiaryProvider>
+    <ThemeProvider>
+      <DiaryProvider>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<div className="flex justify-center"><Calendar /></div>} />
+              <Route path="day/:date" element={<DailyLog />} />
+              <Route path="entry/:id" element={<Editor />} />
+              <Route path="search" element={<Search />} />
+              <Route path="tags" element={<TagManager />} />
+              <Route path="tag/:tagId" element={<EntryList />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </DiaryProvider>
+    </ThemeProvider>
   );
 }
 

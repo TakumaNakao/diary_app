@@ -4,9 +4,14 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useTheme } from '../../context/ThemeContext';
 import 'katex/dist/katex.min.css';
 
 const EnhancedMarkdown = ({ children, components = {} }) => {
+    const { theme } = useTheme();
+    const syntaxTheme = theme === 'dark' ? vscDarkPlus : oneLight;
+
     const defaultComponents = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -14,7 +19,7 @@ const EnhancedMarkdown = ({ children, components = {} }) => {
 
             return !inline ? (
                 <SyntaxHighlighter
-                    style={oneLight}
+                    style={syntaxTheme}
                     language={language}
                     PreTag="div"
                     {...props}
