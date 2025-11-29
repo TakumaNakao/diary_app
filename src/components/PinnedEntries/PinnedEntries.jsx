@@ -1,61 +1,80 @@
 import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
-import { Plus, Calendar as CalendarIcon, ChevronRight, ArrowLeft, Trash2, Pin } from 'lucide-react';
+import { Pin, Calendar, ChevronRight, Trash2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import { getContrastTextColor } from '../../utils/colorUtils';
-import './DailyLog.css';
+import './PinnedEntries.css';
 
-const DailyLog = () => {
-    const { date } = useParams();
-    const navigate = useNavigate();
-    const { entries, tags, deleteEntry } = useDiary();
+const PinnedEntries = () => {
+    const { entries, tags, deleteEntry, togglePin } = useDiary();
+    const [deletingId, setDeletingId] = useState(null);
 
-
-    const dailyEntries = Object.values(entries).filter(entry => entry.date === date);
-
-    const handleCreateNew = () => {
-        navigate(`/entry/new?date=${date}`);
-    };
+    const pinnedEntries = Object.values(entries)
+        .filter(entry => entry.isPinned)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const handleDeleteClick = (e, id) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDeletingId(id);
+    };
+
+    const confirmDelete = (e, id) => {
         e.preventDefault();
         e.stopPropagation();
         if (window.confirm('Are you sure you want to delete this entry?')) {
             deleteEntry(id);
         }
+        setDeletingId(null);
+    };
+
+    const cancelDelete = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDeletingId(null);
+    };
+
+    const handleUnpin = (e, id) => {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePin(id);
     };
 
     return (
-        <div className="daily-log-container">
-            <div className="daily-log-header">
-                <div className="header-left">
-                    <button onClick={() => navigate('/')} className="btn btn-ghost" aria-label="Back">
-                        <ArrowLeft size={20} />
-                    </button>
-                    <h2>{new Date(date).toLocaleDateString(undefined, { dateStyle: 'full' })}</h2>
+        <div className="pinned-entries-container">
+            <div className="pinned-entries-header">
+                <div className="header-info">
+                    <Pin size={24} className="header-icon" />
+                    <h2>Pinned Entries</h2>
                 </div>
-                <button onClick={handleCreateNew} className="btn btn-primary">
-                    <Plus size={16} style={{ marginRight: 8 }} /> New Entry
-                </button>
+                <span className="entry-count">{pinnedEntries.length} entries</span>
             </div>
 
-            <div className="daily-entries-list">
-                {dailyEntries.length === 0 ? (
+            <div className="entries-grid">
+                {pinnedEntries.length === 0 ? (
                     <div className="empty-state">
-                        <p>No entries for this day.</p>
-                        <button onClick={handleCreateNew} className="btn btn-ghost">Create one now</button>
+                        <Pin size={48} className="empty-icon" />
+                        <p>No pinned entries yet.</p>
+                        <p className="sub-text">Pin important entries to see them here.</p>
                     </div>
                 ) : (
-                    dailyEntries.map(entry => (
+                    pinnedEntries.map(entry => (
                         <Link key={entry.id} to={`/entry/${entry.id}`} className="entry-card">
                             <div className="entry-content-wrapper">
-                                {entry.isPinned && (
-                                    <div className="pinned-indicator">
-                                        <Pin size={14} fill="currentColor" />
-                                        <span>Pinned</span>
+                                <div className="entry-card-header">
+                                    <div className="entry-date">
+                                        <Calendar size={16} />
+                                        <span>{new Date(entry.date).toLocaleDateString()}</span>
                                     </div>
-                                )}
+                                    <button
+                                        className="unpin-btn"
+                                        onClick={(e) => handleUnpin(e, entry.id)}
+                                        title="Unpin"
+                                    >
+                                        <Pin size={16} fill="currentColor" />
+                                    </button>
+                                </div>
                                 <div className="entry-preview markdown-body">
                                     <EnhancedMarkdown>{entry.content}</EnhancedMarkdown>
                                     {entry.content.length === 0 && <span className="italic-text">No content</span>}
@@ -82,7 +101,7 @@ const DailyLog = () => {
                             </div>
                             <div className="entry-actions">
                                 <button
-                                    onClick={(e) => handleDeleteClick(e, entry.id)}
+                                    onClick={(e) => confirmDelete(e, entry.id)}
                                     className="btn-icon delete-btn"
                                     title="Delete Entry"
                                 >
@@ -97,4 +116,4 @@ const DailyLog = () => {
     );
 };
 
-export default DailyLog;
+export default PinnedEntries;

@@ -1,0 +1,212 @@
+.pinned-entries-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-4);
+}
+
+.pinned-entries-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-6);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.header-icon {
+    color: var(--color-primary);
+}
+
+.pinned-entries-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.entry-count {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.entries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+}
+
+.entry-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    border: 1px solid var(--color-border);
+    height: 100%;
+}
+
+.entry-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-light);
+}
+
+.entry-content-wrapper {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.entry-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2);
+}
+
+.entry-date {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.unpin-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-primary);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast);
+}
+
+.unpin-btn:hover {
+    background-color: var(--color-bg-tertiary);
+}
+
+.entry-preview {
+    flex: 1;
+    margin-bottom: var(--spacing-3);
+    color: var(--color-text-primary);
+    max-height: 150px;
+    overflow: hidden;
+    position: relative;
+    font-size: 0.95rem;
+}
+
+.entry-preview::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, var(--color-bg-secondary));
+}
+
+.entry-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-top: auto;
+}
+
+.entry-tag-pill {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+}
+
+.entry-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-left: var(--spacing-2);
+    border-left: 1px solid var(--color-border);
+    margin-left: var(--spacing-3);
+    align-self: stretch;
+    justify-content: center;
+}
+
+.delete-btn {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    color: var(--color-text-tertiary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+}
+
+.entry-card:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    color: var(--color-danger);
+    background-color: #fee2e2;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--spacing-12);
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 2px dashed var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-icon {
+    color: var(--color-text-tertiary);
+    margin-bottom: var(--spacing-4);
+    opacity: 0.5;
+}
+
+.empty-state p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-2);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.empty-state .sub-text {
+    font-size: 0.9rem;
+    color: var(--color-text-tertiary);
+    font-weight: normal;
+}
+
+.italic-text {
+    font-style: italic;
+    color: var(--color-text-tertiary);
+}
+
+@media (max-width: 768px) {
+    .delete-btn {
+        opacity: 1;
+    }
+}

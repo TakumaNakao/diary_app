@@ -79,6 +79,14 @@ export const DiaryProvider = ({ children }) => {
 
 
 
+    const togglePin = (id) => {
+        const entry = entries[id];
+        if (entry) {
+            const updatedEntry = { ...entry, isPinned: !entry.isPinned };
+            saveEntry(updatedEntry);
+        }
+    };
+
     const searchEntries = ({ query = '', tagIds = [], startDate = null, endDate = null }) => {
         let filteredEntries = Object.values(entries);
 
@@ -138,7 +146,9 @@ export const DiaryProvider = ({ children }) => {
             saveEntry,
             deleteEntry,
             saveTag,
+            saveTag,
             deleteTag,
+            togglePin,
             searchEntries
         }}>
             {children}

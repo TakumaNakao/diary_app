@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
-import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon, FileText, X } from 'lucide-react';
+import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon, FileText, X, Pin } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import { useTemplates } from '../../context/TemplateContext';
 import LinkInserter from './LinkInserter';
@@ -13,7 +13,7 @@ const Editor = () => {
     const dateParam = searchParams.get('date');
 
     const navigate = useNavigate();
-    const { entries, saveEntry: saveEntryContext, tags } = useDiary();
+    const { entries, saveEntry: saveEntryContext, tags, togglePin } = useDiary();
     const { templates } = useTemplates();
 
     const [content, setContent] = useState('');
@@ -210,6 +210,15 @@ const Editor = () => {
                             </div>
                         )}
                     </div>
+
+                    <button
+                        className={`btn ${entries[id]?.isPinned ? 'btn-primary' : 'btn-ghost'}`}
+                        onClick={() => id !== 'new' && togglePin(id)}
+                        disabled={id === 'new'}
+                        title={id === 'new' ? "Save entry to pin" : "Pin Entry"}
+                    >
+                        <Pin size={16} style={{ marginRight: 8 }} /> {entries[id]?.isPinned ? 'Pinned' : 'Pin'}
+                    </button>
 
                     <button
                         className={`btn ${showLinkInserter ? 'btn-primary' : 'btn-ghost'}`}

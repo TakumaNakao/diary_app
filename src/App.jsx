@@ -13,6 +13,8 @@ import Search from './components/Search/Search';
 import TemplateList from './components/Templates/TemplateList';
 import TemplateEditor from './components/Templates/TemplateEditor';
 
+import PinnedEntries from './components/PinnedEntries/PinnedEntries';
+
 function App() {
   return (
     <ThemeProvider>
@@ -25,6 +27,7 @@ function App() {
                 <Route path="day/:date" element={<DailyLog />} />
                 <Route path="entry/:id" element={<Editor />} />
                 <Route path="search" element={<Search />} />
+                <Route path="pinned" element={<PinnedEntries />} />
                 <Route path="tags" element={<TagManager />} />
                 <Route path="tag/:tagId" element={<EntryList />} />
                 <Route path="templates" element={<TemplateList />} />
