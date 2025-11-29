@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
-import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon } from 'lucide-react';
+import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon, FileText, X } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
+import { useTemplates } from '../../context/TemplateContext';
 import LinkInserter from './LinkInserter';
 import './Editor.css';
 
@@ -13,6 +14,7 @@ const Editor = () => {
 
     const navigate = useNavigate();
     const { entries, saveEntry: saveEntryContext, tags } = useDiary();
+    const { templates } = useTemplates();
 
     const [content, setContent] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
@@ -20,6 +22,7 @@ const Editor = () => {
     const [mode, setMode] = useState('edit'); // 'edit' | 'preview'
     const [showTagSelector, setShowTagSelector] = useState(false);
     const [showLinkInserter, setShowLinkInserter] = useState(false);
+    const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
     // Track if this is the initial load to avoid auto-saving on mount
     const isInitialLoad = useRef(true);
@@ -152,6 +155,21 @@ const Editor = () => {
         setShowLinkInserter(false);
     };
 
+    const handleLoadTemplate = (template) => {
+        if (content.trim() && !window.confirm('Loading a template will replace current content. Continue?')) {
+            return;
+        }
+        setContent(template.content);
+
+        // Merge tags
+        if (template.tags && template.tags.length > 0) {
+            const newTags = [...new Set([...selectedTags, ...template.tags])];
+            setSelectedTags(newTags);
+        }
+
+        setShowTemplateSelector(false);
+    };
+
 
 
     return (
@@ -198,6 +216,14 @@ const Editor = () => {
                         title="Insert Link"
                     >
                         <LinkIcon size={16} style={{ marginRight: 8 }} /> Link
+                    </button>
+
+                    <button
+                        className="btn btn-ghost"
+                        onClick={() => setShowTemplateSelector(true)}
+                        title="Load Template"
+                    >
+                        <FileText size={16} style={{ marginRight: 8 }} /> Template
                     </button>
 
                     <div className="mode-toggle">
@@ -265,6 +291,37 @@ const Editor = () => {
                     onClose={() => setShowLinkInserter(false)}
                     onInsert={handleInsertLink}
                 />
+            )}
+
+            {showTemplateSelector && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3>Select Template</h3>
+                            <button onClick={() => setShowTemplateSelector(false)} className="btn-icon">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="template-selector-list">
+                            {Object.values(templates).length === 0 ? (
+                                <p className="empty-text">No templates available.</p>
+                            ) : (
+                                Object.values(templates).map(template => (
+                                    <button
+                                        key={template.id}
+                                        className="template-selector-item"
+                                        onClick={() => handleLoadTemplate(template)}
+                                    >
+                                        <span className="template-title">{template.title}</span>
+                                        <span className="template-preview-text">
+                                            {template.content.substring(0, 50)}...
+                                        </span>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

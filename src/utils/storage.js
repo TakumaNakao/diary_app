@@ -4,7 +4,8 @@ const STORAGE_KEY = 'diary_app_data';
 
 const INITIAL_DATA = {
     entries: {}, // Keyed by UUID
-    tags: {}     // Keyed by ID
+    tags: {},    // Keyed by ID
+    templates: {} // Keyed by ID
 };
 
 export const StorageService = {
@@ -99,5 +100,43 @@ export const StorageService = {
         const data = StorageService.getData();
         delete data.tags[id];
         StorageService.saveData(data);
+    },
+
+    // Templates
+    getTemplates: () => {
+        const data = StorageService.getData();
+        // Ensure templates object exists (migration for existing users)
+        if (!data.templates) {
+            data.templates = {};
+            StorageService.saveData(data);
+        }
+        return data.templates;
+    },
+
+    saveTemplate: (template) => {
+        const data = StorageService.getData();
+        const id = template.id || uuidv4();
+
+        // Ensure templates object exists
+        if (!data.templates) {
+            data.templates = {};
+        }
+
+        data.templates[id] = {
+            ...template,
+            id,
+            updatedAt: new Date().toISOString()
+        };
+
+        StorageService.saveData(data);
+        return data.templates[id];
+    },
+
+    deleteTemplate: (id) => {
+        const data = StorageService.getData();
+        if (data.templates) {
+            delete data.templates[id];
+            StorageService.saveData(data);
+        }
     }
 };
