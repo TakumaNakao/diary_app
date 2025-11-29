@@ -10,7 +10,7 @@ const DailyLog = () => {
     const { date } = useParams();
     const navigate = useNavigate();
     const { entries, tags, deleteEntry } = useDiary();
-    const [deletingId, setDeletingId] = useState(null);
+
 
     const dailyEntries = Object.values(entries).filter(entry => entry.date === date);
 
@@ -21,20 +21,9 @@ const DailyLog = () => {
     const handleDeleteClick = (e, id) => {
         e.preventDefault();
         e.stopPropagation();
-        setDeletingId(id);
-    };
-
-    const confirmDelete = (e, id) => {
-        e.preventDefault();
-        e.stopPropagation();
-        deleteEntry(id);
-        setDeletingId(null);
-    };
-
-    const cancelDelete = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDeletingId(null);
+        if (window.confirm('Are you sure you want to delete this entry?')) {
+            deleteEntry(id);
+        }
     };
 
     return (
@@ -86,33 +75,13 @@ const DailyLog = () => {
                                 </div>
                             </div>
                             <div className="entry-actions">
-                                {deletingId === entry.id ? (
-                                    <div className="delete-confirmation" onClick={(e) => e.preventDefault()}>
-                                        <span className="delete-confirm-text">Delete?</span>
-                                        <button
-                                            onClick={(e) => confirmDelete(e, entry.id)}
-                                            className="btn-icon danger"
-                                            title="Confirm Delete"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                        <button
-                                            onClick={cancelDelete}
-                                            className="btn-icon"
-                                            title="Cancel"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        onClick={(e) => handleDeleteClick(e, entry.id)}
-                                        className="btn-icon delete-btn"
-                                        title="Delete Entry"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                )}
+                                <button
+                                    onClick={(e) => handleDeleteClick(e, entry.id)}
+                                    className="btn-icon delete-btn"
+                                    title="Delete Entry"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
                             </div>
                         </Link>
                     ))

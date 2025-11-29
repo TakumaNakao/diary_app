@@ -13,7 +13,7 @@ const TagManager = () => {
     const [tagColor, setTagColor] = useState('#6B7280'); // Base color
     const [shadeLevel, setShadeLevel] = useState(5); // 1-5, 5 is base
     const [errorMessage, setErrorMessage] = useState('');
-    const [deletingId, setDeletingId] = useState(null);
+
 
     const PRESET_COLORS = [
         '#EF4444', // Red
@@ -71,18 +71,9 @@ const TagManager = () => {
     };
 
     const handleDeleteClick = (id) => {
-        setDeletingId(id);
-    };
-
-    const confirmDelete = () => {
-        if (deletingId) {
-            deleteTag(deletingId);
-            setDeletingId(null);
+        if (window.confirm('Are you sure you want to delete this tag?')) {
+            deleteTag(id);
         }
-    };
-
-    const cancelDelete = () => {
-        setDeletingId(null);
     };
 
     const startEdit = (tag) => {
@@ -132,29 +123,17 @@ const TagManager = () => {
                         <div className="tag-color-indicator" style={{ backgroundColor: tag.color || '#6B7280' }}></div>
                         <span className="tag-name">{tag.name}</span>
                     </div>
-                    {deletingId === tag.id ? (
-                        <div className="delete-confirmation">
-                            <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Delete?</span>
-                            <button onClick={confirmDelete} className="btn-icon danger" title="Confirm Delete">
-                                <Trash2 size={14} />
-                            </button>
-                            <button onClick={cancelDelete} className="btn-icon" title="Cancel">
-                                ✕
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="tag-actions">
-                            <button onClick={() => startAdd(tag.id)} className="btn-icon" title="Add Child">
-                                <Plus size={14} />
-                            </button>
-                            <button onClick={() => startEdit(tag)} className="btn-icon" title="Edit">
-                                <Edit2 size={14} />
-                            </button>
-                            <button onClick={() => handleDeleteClick(tag.id)} className="btn-icon danger" title="Delete">
-                                <Trash2 size={14} />
-                            </button>
-                        </div>
-                    )}
+                    <div className="tag-actions">
+                        <button onClick={() => startAdd(tag.id)} className="btn-icon" title="Add Child">
+                            <Plus size={14} />
+                        </button>
+                        <button onClick={() => startEdit(tag)} className="btn-icon" title="Edit">
+                            <Edit2 size={14} />
+                        </button>
+                        <button onClick={() => handleDeleteClick(tag.id)} className="btn-icon danger" title="Delete">
+                            <Trash2 size={14} />
+                        </button>
+                    </div>
                 </div>
                 <div className="tag-children">
                     {renderTagTree(getChildTags(tag.id))}
