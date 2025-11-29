@@ -19,6 +19,9 @@
 }
 
 .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
     margin-bottom: var(--spacing-8);
     padding: 0 var(--spacing-2);
 }
@@ -26,6 +29,25 @@
 .sidebar-header h1 {
     font-size: 1.5rem;
     font-weight: 700;
+    color: var(--color-text-primary);
+    flex: 1;
+}
+
+.theme-toggle-btn {
+    padding: var(--spacing-2);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    background: transparent;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+}
+
+.theme-toggle-btn:hover {
+    background-color: var(--color-bg-tertiary);
     color: var(--color-text-primary);
 }
 
@@ -186,7 +208,6 @@
     .app-layout {
         flex-direction: column;
         height: 100vh;
-        /* Keep full height */
         overflow: hidden;
     }
 
@@ -236,14 +257,10 @@
     }
 
     .nav-section {
-        display: block;
-        /* Show tags in sidebar on mobile */
+        margin-top: var(--spacing-4);
     }
 
     .main-content {
         padding: var(--spacing-4);
-        height: 100%;
-        /* Take remaining height */
-        overflow-y: auto;
     }
 }

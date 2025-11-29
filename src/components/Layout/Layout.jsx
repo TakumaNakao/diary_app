@@ -98,6 +98,9 @@ const Layout = () => {
             <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <h1>Diary</h1>
+                    <button onClick={toggleTheme} className="theme-toggle-btn" title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                    </button>
                     <button
                         className="close-menu-btn"
                         onClick={() => setIsSidebarOpen(false)}
@@ -119,10 +122,6 @@ const Layout = () => {
                         <Settings size={20} />
                         <span>Manage Tags</span>
                     </Link>
-                    <button onClick={toggleTheme} className="nav-item theme-toggle">
-                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                        <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-                    </button>
 
                     <div className="nav-section">
                         <span className="nav-section-title">Tags</span>
