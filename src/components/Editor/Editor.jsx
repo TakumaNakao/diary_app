@@ -202,6 +202,7 @@ const Editor = () => {
                                                 checked={selectedTags.includes(tag.id)}
                                                 onChange={() => toggleTag(tag.id)}
                                             />
+                                            <span className="tag-color" style={{ backgroundColor: tag.color }}></span>
                                             {tag.name}
                                         </label>
                                     ))
