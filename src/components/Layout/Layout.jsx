@@ -1,13 +1,19 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Calendar as CalendarIcon, Book, Tag, Settings, ChevronRight, ChevronDown, Search as SearchIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Book, Tag, Settings, ChevronRight, ChevronDown, Search as SearchIcon, Menu, X } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Layout.css';
 
 const Layout = () => {
     const location = useLocation();
     const { tags } = useDiary();
     const [expandedTags, setExpandedTags] = useState({});
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Close sidebar on route change
+    useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [location]);
 
     const isActive = (path) => {
         return location.pathname === path ? 'active' : '';
@@ -66,9 +72,37 @@ const Layout = () => {
 
     return (
         <div className="app-layout">
-            <aside className="sidebar">
+            {/* Mobile Header */}
+            <header className="mobile-header">
+                <button
+                    className="menu-btn"
+                    onClick={() => setIsSidebarOpen(true)}
+                    aria-label="Open menu"
+                >
+                    <Menu size={24} />
+                </button>
+                <h1>Diary</h1>
+                <div style={{ width: 24 }}></div> {/* Spacer for centering */}
+            </header>
+
+            {/* Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="sidebar-overlay"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
+            <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <h1>Diary</h1>
+                    <button
+                        className="close-menu-btn"
+                        onClick={() => setIsSidebarOpen(false)}
+                        aria-label="Close menu"
+                    >
+                        <X size={24} />
+                    </button>
                 </div>
                 <nav className="sidebar-nav">
                     <Link to="/" className={`nav-item ${isActive('/')}`}>
