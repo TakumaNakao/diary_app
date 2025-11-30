@@ -147,7 +147,30 @@ const Editor = () => {
                 clearTimeout(saveTimeoutRef.current);
             }
         };
-    }, [content, selectedTags, images]); // Added images to dependency
+    }, [content, selectedTags]); // Removed images from dependency to avoid loop
+
+    const cleanupUnusedImages = async (entryId, contentText) => {
+        if (!entryId || entryId === 'new') return;
+
+        try {
+            // 1. Identify all image IDs used in the content
+            const usedImageIds = Array.from(contentText.matchAll(/diary-image:([a-f0-9-]+)/g), m => m[1]);
+
+            // 2. Get all images currently in DB for this entry
+            const allDbImages = await StorageService.getImagesByEntryId(entryId);
+
+            // 3. Find images in DB that are NOT in the content
+            const imagesToDelete = allDbImages.filter(img => !usedImageIds.includes(img.id));
+
+            // 4. Delete them
+            if (imagesToDelete.length > 0) {
+                await Promise.all(imagesToDelete.map(img => StorageService.deleteImage(img.id)));
+                console.log(`Deleted ${imagesToDelete.length} unused images for entry ${entryId}.`);
+            }
+        } catch (error) {
+            console.error("Failed to cleanup images:", error);
+        }
+    };
 
     const handleSave = async () => {
         const entryData = {
@@ -172,16 +195,15 @@ const Editor = () => {
                         mimeType: img.blob.type
                     });
                 }));
-
-                // Reload images to get real IDs and remove pending status
-                // Or just update local state if we want to be faster, but reloading ensures consistency
-                const loadedImages = await StorageService.getImagesByEntryId(entryId);
-                const imagesWithUrls = loadedImages.map(img => ({
-                    ...img,
-                    url: URL.createObjectURL(img.blob)
-                }));
-                setImages(imagesWithUrls);
             }
+
+            // Reload images to reflect current state (saved)
+            const loadedImages = await StorageService.getImagesByEntryId(entryId);
+            const imagesWithUrls = loadedImages.map(img => ({
+                ...img,
+                url: URL.createObjectURL(img.blob)
+            }));
+            setImages(imagesWithUrls);
 
             if (id === 'new') {
                 navigate(`/entry/${savedEntry.id}`, { replace: true });
@@ -386,7 +408,12 @@ const Editor = () => {
                         </button>
                         <button
                             className={`btn ${mode === 'preview' ? 'btn-primary' : 'btn-ghost'}`}
-                            onClick={() => setMode('preview')}
+                            onClick={async () => {
+                                if (mode !== 'preview') {
+                                    await cleanupUnusedImages(id, content);
+                                    setMode('preview');
+                                }
+                            }}
                         >
                             <Eye size={16} style={{ marginRight: 8 }} /> Preview
                         </button>
@@ -418,43 +445,47 @@ const Editor = () => {
             </div>
 
 
-            {showLinkInserter && (
-                <LinkInserter
-                    onClose={() => setShowLinkInserter(false)}
-                    onInsert={handleInsertLink}
-                />
-            )}
+            {
+                showLinkInserter && (
+                    <LinkInserter
+                        onClose={() => setShowLinkInserter(false)}
+                        onInsert={handleInsertLink}
+                    />
+                )
+            }
 
-            {showTemplateSelector && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3>Select Template</h3>
-                            <button onClick={() => setShowTemplateSelector(false)} className="btn-icon">
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="template-selector-list">
-                            {Object.values(templates).length === 0 ? (
-                                <p className="empty-text">No templates available.</p>
-                            ) : (
-                                Object.values(templates).map(template => (
-                                    <button
-                                        key={template.id}
-                                        className="template-selector-item"
-                                        onClick={() => handleLoadTemplate(template)}
-                                    >
-                                        <span className="template-title">{template.title}</span>
-                                        <span className="template-preview-text">
-                                            {template.content.substring(0, 50)}...
-                                        </span>
-                                    </button>
-                                ))
-                            )}
+            {
+                showTemplateSelector && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h3>Select Template</h3>
+                                <button onClick={() => setShowTemplateSelector(false)} className="btn-icon">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="template-selector-list">
+                                {Object.values(templates).length === 0 ? (
+                                    <p className="empty-text">No templates available.</p>
+                                ) : (
+                                    Object.values(templates).map(template => (
+                                        <button
+                                            key={template.id}
+                                            className="template-selector-item"
+                                            onClick={() => handleLoadTemplate(template)}
+                                        >
+                                            <span className="template-title">{template.title}</span>
+                                            <span className="template-preview-text">
+                                                {template.content.substring(0, 50)}...
+                                            </span>
+                                        </button>
+                                    ))
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
         </div>
     );
 };
