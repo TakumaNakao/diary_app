@@ -272,20 +272,6 @@ const Editor = () => {
         }, 0);
     };
 
-    const handleDeleteImage = async (imageId, isPending) => {
-        if (!window.confirm('Delete this image?')) return;
-
-        if (isPending) {
-            setImages(prev => prev.filter(img => img.id !== imageId));
-        } else {
-            try {
-                await StorageService.deleteImage(imageId);
-                setImages(prev => prev.filter(img => img.id !== imageId));
-            } catch (error) {
-                console.error("Failed to delete image:", error);
-            }
-        }
-    };
 
     const markdownComponents = useMemo(() => ({
         a: ({ node, ...props }) => {
@@ -431,25 +417,6 @@ const Editor = () => {
                 )}
             </div>
 
-            {/* Image Gallery */}
-            {images.length > 0 && (
-                <div className="editor-images">
-                    <h3>Attached Images</h3>
-                    <div className="image-grid">
-                        {images.map(img => (
-                            <div key={img.id} className="image-item">
-                                <img src={img.url} alt="Attachment" />
-                                <button
-                                    className="delete-image-btn"
-                                    onClick={() => handleDeleteImage(img.id, img.isPending)}
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
 
             {showLinkInserter && (
                 <LinkInserter
