@@ -7,3 +7,10 @@ db.version(1).stores({
     tags: 'id, name, color',
     templates: 'id, title, content'
 });
+
+db.version(2).stores({
+    entries: 'id, date, title, content, isPinned, *tags',
+    tags: 'id, name, color',
+    templates: 'id, title, content',
+    images: 'id, entryId'
+});

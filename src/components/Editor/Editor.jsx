@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
-import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon, FileText, X, Pin } from 'lucide-react';
+import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon, FileText, X, Pin, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import { useTemplates } from '../../context/TemplateContext';
+import { StorageService } from '../../utils/storage';
 import LinkInserter from './LinkInserter';
+import { v4 as uuidv4 } from 'uuid';
 import './Editor.css';
 
 const Editor = () => {
@@ -23,6 +25,10 @@ const Editor = () => {
     const [showTagSelector, setShowTagSelector] = useState(false);
     const [showLinkInserter, setShowLinkInserter] = useState(false);
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+
+    // Image state
+    const [images, setImages] = useState([]); // Array of { id, blob, url, isPending }
+    const fileInputRef = useRef(null);
 
     // Track if this is the initial load to avoid auto-saving on mount
     const isInitialLoad = useRef(true);
@@ -50,18 +56,12 @@ const Editor = () => {
 
     // Manage mode transitions
     useEffect(() => {
-        // If it's a new entry, always start in edit mode
         if (id === 'new') {
             setMode('edit');
-        }
-        // If we're navigating to an existing entry
-        else if (id) {
-            // If we just came from 'new' (created a new entry), keep the current mode (likely 'edit')
+        } else if (id) {
             if (lastIdRef.current === 'new') {
-                // Do nothing, preserve mode
-            }
-            // If we navigated from another existing entry or fresh load, default to preview
-            else if (lastIdRef.current !== id) {
+                // Preserve mode
+            } else if (lastIdRef.current !== id) {
                 setMode('preview');
             }
         }
@@ -70,47 +70,67 @@ const Editor = () => {
 
     // Load existing entry or reset for new
     useEffect(() => {
-        if (id === 'new') {
-            setContent('');
-            setSelectedTags([]);
-            setEntryDate(dateParam || new Date().toISOString().split('T')[0]);
-        } else if (id) {
-            const entry = entries[id];
-            if (entry) {
-                setContent(entry.content);
-                setSelectedTags(entry.tags || []);
-                setEntryDate(entry.date);
+        const loadEntry = async () => {
+            if (id === 'new') {
+                setContent('');
+                setSelectedTags([]);
+                setEntryDate(dateParam || new Date().toISOString().split('T')[0]);
+                setImages([]);
+            } else if (id) {
+                const entry = entries[id];
+                if (entry) {
+                    setContent(entry.content);
+                    setSelectedTags(entry.tags || []);
+                    setEntryDate(entry.date);
+
+                    // Load images
+                    try {
+                        const loadedImages = await StorageService.getImagesByEntryId(id);
+                        // Create object URLs for preview
+                        const imagesWithUrls = loadedImages.map(img => ({
+                            ...img,
+                            url: URL.createObjectURL(img.blob)
+                        }));
+                        setImages(imagesWithUrls);
+                    } catch (error) {
+                        console.error("Failed to load images:", error);
+                    }
+                }
             }
-        }
-        // Mark initial load as complete after a short delay
-        setTimeout(() => {
-            isInitialLoad.current = false;
-        }, 100);
+            // Mark initial load as complete after a short delay
+            setTimeout(() => {
+                isInitialLoad.current = false;
+            }, 100);
+        };
+        loadEntry();
+
+        // Cleanup URLs on unmount or id change
+        return () => {
+            images.forEach(img => {
+                if (img.url) URL.revokeObjectURL(img.url);
+            });
+        };
     }, [id, entries, dateParam]);
 
     // Auto-save when content or tags change (with debouncing)
     useEffect(() => {
-        // Skip auto-save on initial load or if we're on a 'new' entry with no content
         if (isInitialLoad.current) return;
-        if (id === 'new' && content.trim().length === 0 && selectedTags.length === 0) return;
+        if (id === 'new' && content.trim().length === 0 && selectedTags.length === 0 && images.length === 0) return;
 
-        // Clear existing timeout
         if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
         }
 
-        // Set new timeout for auto-save (0.3 second debounce)
         saveTimeoutRef.current = setTimeout(() => {
             handleSave();
         }, 300);
 
-        // Cleanup timeout on unmount
         return () => {
             if (saveTimeoutRef.current) {
                 clearTimeout(saveTimeoutRef.current);
             }
         };
-    }, [content, selectedTags]); // Auto-save when content or tags change
+    }, [content, selectedTags, images]); // Added images to dependency
 
     const handleSave = async () => {
         const entryData = {
@@ -122,8 +142,29 @@ const Editor = () => {
 
         try {
             const savedEntry = await saveEntryContext(entryData);
+            const entryId = savedEntry.id;
 
-            // If it was new, navigate to the created ID to avoid creating duplicates on subsequent saves
+            // Save pending images
+            const pendingImages = images.filter(img => img.isPending);
+            if (pendingImages.length > 0) {
+                await Promise.all(pendingImages.map(async (img) => {
+                    await StorageService.saveImage({
+                        entryId: entryId,
+                        blob: img.blob,
+                        mimeType: img.blob.type
+                    });
+                }));
+
+                // Reload images to get real IDs and remove pending status
+                // Or just update local state if we want to be faster, but reloading ensures consistency
+                const loadedImages = await StorageService.getImagesByEntryId(entryId);
+                const imagesWithUrls = loadedImages.map(img => ({
+                    ...img,
+                    url: URL.createObjectURL(img.blob)
+                }));
+                setImages(imagesWithUrls);
+            }
+
             if (id === 'new') {
                 navigate(`/entry/${savedEntry.id}`, { replace: true });
             }
@@ -148,7 +189,6 @@ const Editor = () => {
             const newContent = content.substring(0, start) + linkText + content.substring(end);
             setContent(newContent);
 
-            // Restore focus and cursor position (after inserted text)
             setTimeout(() => {
                 textarea.focus();
                 textarea.setSelectionRange(start + linkText.length, start + linkText.length);
@@ -165,7 +205,6 @@ const Editor = () => {
         }
         setContent(template.content);
 
-        // Merge tags
         if (template.tags && template.tags.length > 0) {
             const newTags = [...new Set([...selectedTags, ...template.tags])];
             setSelectedTags(newTags);
@@ -174,7 +213,39 @@ const Editor = () => {
         setShowTemplateSelector(false);
     };
 
+    const handleImageSelect = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
 
+        const newImages = files.map(file => ({
+            id: uuidv4(), // Temporary ID for key
+            blob: file,
+            url: URL.createObjectURL(file),
+            isPending: true
+        }));
+
+        setImages(prev => [...prev, ...newImages]);
+
+        // Reset file input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleDeleteImage = async (imageId, isPending) => {
+        if (!window.confirm('Delete this image?')) return;
+
+        if (isPending) {
+            setImages(prev => prev.filter(img => img.id !== imageId));
+        } else {
+            try {
+                await StorageService.deleteImage(imageId);
+                setImages(prev => prev.filter(img => img.id !== imageId));
+            } catch (error) {
+                console.error("Failed to delete image:", error);
+            }
+        }
+    };
 
     return (
         <div className="editor-container">
@@ -223,6 +294,22 @@ const Editor = () => {
                     >
                         <Pin size={16} style={{ marginRight: 8 }} /> {entries[id]?.isPinned ? 'Pinned' : 'Pin'}
                     </button>
+
+                    <button
+                        className="btn btn-ghost"
+                        onClick={() => fileInputRef.current?.click()}
+                        title="Attach Image"
+                    >
+                        <ImageIcon size={16} style={{ marginRight: 8 }} /> Image
+                    </button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageSelect}
+                    />
 
                     <button
                         className={`btn ${showLinkInserter ? 'btn-primary' : 'btn-ghost'}`}
@@ -300,6 +387,27 @@ const Editor = () => {
                     </div>
                 )}
             </div>
+
+            {/* Image Gallery */}
+            {images.length > 0 && (
+                <div className="editor-images">
+                    <h3>Attached Images</h3>
+                    <div className="image-grid">
+                        {images.map(img => (
+                            <div key={img.id} className="image-item">
+                                <img src={img.url} alt="Attachment" />
+                                <button
+                                    className="delete-image-btn"
+                                    onClick={() => handleDeleteImage(img.id, img.isPending)}
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {showLinkInserter && (
                 <LinkInserter
                     onClose={() => setShowLinkInserter(false)}

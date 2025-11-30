@@ -5,12 +5,6 @@ export const StorageService = {
     // Entries
     getEntries: async () => {
         const entriesArray = await db.entries.toArray();
-        // Convert array back to object keyed by ID to match previous API structure expected by Context
-        // or we can refactor Context to work with arrays. 
-        // For now, let's keep the return format as object to minimize Context changes, 
-        // but it might be better to switch to arrays in Context eventually.
-        // Actually, the Context uses an object state: const [entries, setEntries] = useState({});
-        // So let's return an object.
         const entriesObj = {};
         entriesArray.forEach(entry => {
             entriesObj[entry.id] = entry;
@@ -38,7 +32,15 @@ export const StorageService = {
     },
 
     deleteEntry: async (id) => {
-        await db.entries.delete(id);
+        await db.transaction('rw', db.entries, db.images, async () => {
+            await db.entries.delete(id);
+            // Delete associated images
+            const images = await db.images.where('entryId').equals(id).toArray();
+            const imageIds = images.map(img => img.id);
+            if (imageIds.length > 0) {
+                await db.images.bulkDelete(imageIds);
+            }
+        });
     },
 
     // Tags
@@ -91,7 +93,27 @@ export const StorageService = {
         await db.templates.delete(id);
     },
 
-    // Helper to get all data (for initial load if needed, though we should load separately)
+    // Images
+    getImagesByEntryId: async (entryId) => {
+        return await db.images.where('entryId').equals(entryId).toArray();
+    },
+
+    saveImage: async (image) => {
+        const id = image.id || uuidv4();
+        const newImage = {
+            ...image,
+            id,
+            createdAt: new Date().toISOString()
+        };
+        await db.images.put(newImage);
+        return newImage;
+    },
+
+    deleteImage: async (id) => {
+        await db.images.delete(id);
+    },
+
+    // Helper to get all data
     getData: async () => {
         const [entries, tags, templates] = await Promise.all([
             StorageService.getEntries(),
