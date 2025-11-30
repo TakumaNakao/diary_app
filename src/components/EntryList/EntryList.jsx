@@ -9,7 +9,6 @@ import './EntryList.css';
 const EntryList = () => {
     const { tagId } = useParams();
     const { entries, tags, deleteEntry } = useDiary();
-    const [deletingId, setDeletingId] = useState(null);
 
     const currentTag = tags[tagId];
 
@@ -20,20 +19,9 @@ const EntryList = () => {
     const handleDeleteClick = (e, id) => {
         e.preventDefault();
         e.stopPropagation();
-        setDeletingId(id);
-    };
-
-    const confirmDelete = (e, id) => {
-        e.preventDefault();
-        e.stopPropagation();
-        deleteEntry(id);
-        setDeletingId(null);
-    };
-
-    const cancelDelete = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDeletingId(null);
+        if (window.confirm('Are you sure you want to delete this entry?')) {
+            deleteEntry(id);
+        }
     };
 
     // Helper to get all child tag IDs recursively
@@ -102,33 +90,13 @@ const EntryList = () => {
                                 </div>
                             </div>
                             <div className="entry-actions">
-                                {deletingId === entry.id ? (
-                                    <div className="delete-confirmation" onClick={(e) => e.preventDefault()}>
-                                        <span className="delete-confirm-text">Delete?</span>
-                                        <button
-                                            onClick={(e) => confirmDelete(e, entry.id)}
-                                            className="btn-icon danger"
-                                            title="Confirm Delete"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                        <button
-                                            onClick={cancelDelete}
-                                            className="btn-icon"
-                                            title="Cancel"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        onClick={(e) => handleDeleteClick(e, entry.id)}
-                                        className="btn-icon delete-btn"
-                                        title="Delete Entry"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                )}
+                                <button
+                                    onClick={(e) => handleDeleteClick(e, entry.id)}
+                                    className="btn-icon delete-btn"
+                                    title="Delete Entry"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
                             </div>
                         </Link>
                     ))
@@ -137,5 +105,4 @@ const EntryList = () => {
         </div>
     );
 };
-
 export default EntryList;
