@@ -293,22 +293,6 @@ input:checked~.toggle-text .toggle-icon {
 
 .result-title {
     font-size: 1rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin-bottom: var(--spacing-2);
-}
-
-.result-content {
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    margin-bottom: var(--spacing-2);
-}
-
-.result-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1);
 }
 
 .result-tag {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Calendar, Tag as TagIcon, X, Pin } from 'lucide-react';
 import { useDiary } from '../../context/DiaryContext';
 import { getContrastTextColor } from '../../utils/colorUtils';
+import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
 import './Search.css';
 
 const Search = () => {
@@ -184,10 +185,13 @@ const Search = () => {
                                 >
                                     <div className="result-date">{formatDate(entry.date)}</div>
                                     {entry.title && <h3 className="result-title">{entry.title}</h3>}
-                                    <p className="result-content">
-                                        {entry.content?.substring(0, 200)}
-                                        {entry.content?.length > 200 && '...'}
-                                    </p>
+
+                                    <div className="result-content-markdown">
+                                        <EnhancedMarkdown>
+                                            {entry.content}
+                                        </EnhancedMarkdown>
+                                    </div>
+
                                     {entry.tags && entry.tags.length > 0 && (
                                         <div className="result-tags">
                                             {entry.tags.map(tagId => {
