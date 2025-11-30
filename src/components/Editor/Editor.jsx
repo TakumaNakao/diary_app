@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import EnhancedMarkdown from '../EnhancedMarkdown/EnhancedMarkdown';
 import { Eye, Edit2, ArrowLeft, Tag, Link as LinkIcon, FileText, X, Pin, Image as ImageIcon, Trash2 } from 'lucide-react';
@@ -53,6 +53,12 @@ const Editor = () => {
     }, [showTagSelector]);
 
     const lastIdRef = useRef(null);
+    const contentLoadedRef = useRef(false);
+
+    // Reset contentLoadedRef when id changes
+    useEffect(() => {
+        contentLoadedRef.current = false;
+    }, [id]);
 
     // Manage mode transitions
     useEffect(() => {
@@ -68,49 +74,60 @@ const Editor = () => {
         lastIdRef.current = id;
     }, [id]);
 
-    // Load existing entry or reset for new
+    // Load existing entry content
     useEffect(() => {
-        const loadEntry = async () => {
-            if (id === 'new') {
-                setContent('');
-                setSelectedTags([]);
-                setEntryDate(dateParam || new Date().toISOString().split('T')[0]);
-                setImages([]);
-            } else if (id) {
+        if (id === 'new') {
+            setContent('');
+            setSelectedTags([]);
+            setEntryDate(dateParam || new Date().toISOString().split('T')[0]);
+            contentLoadedRef.current = true;
+        } else if (id && entries[id]) {
+            // Only load if we haven't loaded content for this ID yet
+            if (!contentLoadedRef.current) {
                 const entry = entries[id];
-                if (entry) {
-                    setContent(entry.content);
-                    setSelectedTags(entry.tags || []);
-                    setEntryDate(entry.date);
-
-                    // Load images
-                    try {
-                        const loadedImages = await StorageService.getImagesByEntryId(id);
-                        // Create object URLs for preview
-                        const imagesWithUrls = loadedImages.map(img => ({
-                            ...img,
-                            url: URL.createObjectURL(img.blob)
-                        }));
-                        setImages(imagesWithUrls);
-                    } catch (error) {
-                        console.error("Failed to load images:", error);
-                    }
-                }
+                setContent(entry.content);
+                setSelectedTags(entry.tags || []);
+                setEntryDate(entry.date);
+                contentLoadedRef.current = true;
             }
-            // Mark initial load as complete after a short delay
+        }
+    }, [id, entries, dateParam]);
+
+    // Load images - Separate effect to avoid loop with entries update
+    useEffect(() => {
+        const loadImages = async () => {
+            if (id && id !== 'new') {
+                try {
+                    const loadedImages = await StorageService.getImagesByEntryId(id);
+                    const imagesWithUrls = loadedImages.map(img => ({
+                        ...img,
+                        url: URL.createObjectURL(img.blob)
+                    }));
+                    setImages(imagesWithUrls);
+                } catch (error) {
+                    console.error("Failed to load images:", error);
+                }
+            } else {
+                setImages([]);
+            }
+
+            // Mark initial load as complete
             setTimeout(() => {
                 isInitialLoad.current = false;
             }, 100);
         };
-        loadEntry();
 
-        // Cleanup URLs on unmount or id change
+        loadImages();
+
         return () => {
-            images.forEach(img => {
-                if (img.url) URL.revokeObjectURL(img.url);
+            setImages(prev => {
+                prev.forEach(img => {
+                    if (img.url) URL.revokeObjectURL(img.url);
+                });
+                return [];
             });
         };
-    }, [id, entries, dateParam]);
+    }, [id]);
 
     // Auto-save when content or tags change (with debouncing)
     useEffect(() => {
@@ -149,6 +166,7 @@ const Editor = () => {
             if (pendingImages.length > 0) {
                 await Promise.all(pendingImages.map(async (img) => {
                     await StorageService.saveImage({
+                        id: img.id,
                         entryId: entryId,
                         blob: img.blob,
                         mimeType: img.blob.type
@@ -226,10 +244,32 @@ const Editor = () => {
 
         setImages(prev => [...prev, ...newImages]);
 
+        // Insert markdown for new images
+        const textarea = document.querySelector('.editor-textarea');
+        let insertPosition = content.length;
+
+        if (textarea) {
+            insertPosition = textarea.selectionStart;
+        }
+
+        const imageMarkdown = newImages.map(img => `\n![Image](diary-image:${img.id})`).join('\n');
+
+        const newContent = content.substring(0, insertPosition) + imageMarkdown + content.substring(insertPosition);
+        setContent(newContent);
+
         // Reset file input
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
+
+        // Restore focus after a tick
+        setTimeout(() => {
+            if (textarea) {
+                textarea.focus();
+                const newCursorPos = insertPosition + imageMarkdown.length;
+                textarea.setSelectionRange(newCursorPos, newCursorPos);
+            }
+        }, 0);
     };
 
     const handleDeleteImage = async (imageId, isPending) => {
@@ -246,6 +286,30 @@ const Editor = () => {
             }
         }
     };
+
+    const markdownComponents = useMemo(() => ({
+        a: ({ node, ...props }) => {
+            const isInternal = props.href && (
+                props.href.startsWith('/day/') ||
+                props.href.startsWith('/entry/') ||
+                props.href.startsWith('/tag/')
+            );
+
+            if (isInternal) {
+                return (
+                    <a
+                        {...props}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate(props.href);
+                        }}
+                        style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
+                    />
+                );
+            }
+            return <a {...props} target="_blank" rel="noopener noreferrer" />;
+        }
+    }), [navigate]);
 
     return (
         <div className="editor-container">
@@ -357,29 +421,8 @@ const Editor = () => {
                 ) : (
                     <div className="editor-preview markdown-body">
                         <EnhancedMarkdown
-                            components={{
-                                a: ({ node, ...props }) => {
-                                    const isInternal = props.href && (
-                                        props.href.startsWith('/day/') ||
-                                        props.href.startsWith('/entry/') ||
-                                        props.href.startsWith('/tag/')
-                                    );
-
-                                    if (isInternal) {
-                                        return (
-                                            <a
-                                                {...props}
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    navigate(props.href);
-                                                }}
-                                                style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
-                                            />
-                                        );
-                                    }
-                                    return <a {...props} target="_blank" rel="noopener noreferrer" />;
-                                }
-                            }}
+                            images={images}
+                            components={markdownComponents}
                         >
                             {content}
                         </EnhancedMarkdown>
