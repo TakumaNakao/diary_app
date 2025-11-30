@@ -15,75 +15,106 @@ export const useDiary = () => {
 export const DiaryProvider = ({ children }) => {
     const [entries, setEntries] = useState({});
     const [tags, setTags] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Load initial data
-        const data = StorageService.getData();
-        setEntries(data.entries);
-        setTags(data.tags);
+        const loadData = async () => {
+            try {
+                const data = await StorageService.getData();
+                setEntries(data.entries || {});
+                setTags(data.tags || {});
+            } catch (error) {
+                console.error("Failed to load data from storage:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadData();
     }, []);
 
-    const saveEntry = (entryData) => {
-        const savedEntry = StorageService.saveEntry(entryData);
-        setEntries(prev => ({
-            ...prev,
-            [savedEntry.id]: savedEntry
-        }));
-        return savedEntry;
-    };
-
-    const deleteEntry = (id) => {
-        StorageService.deleteEntry(id);
-        setEntries(prev => {
-            const newEntries = { ...prev };
-            delete newEntries[id];
-            return newEntries;
-        });
-    };
-
-    const saveTag = (tag) => {
-        const savedTag = StorageService.saveTag(tag);
-        setTags(prev => ({
-            ...prev,
-            [savedTag.id]: savedTag
-        }));
-    };
-
-    const deleteTag = (id) => {
-        StorageService.deleteTag(id);
-
-        // Remove this tag from all entries that have it
-        const updatedEntries = { ...entries };
-        let hasChanges = false;
-
-        Object.values(updatedEntries).forEach(entry => {
-            if (entry.tags && entry.tags.includes(id)) {
-                const newTags = entry.tags.filter(tagId => tagId !== id);
-                const updatedEntry = { ...entry, tags: newTags };
-                updatedEntries[entry.id] = updatedEntry;
-                StorageService.saveEntry(updatedEntry); // Save updated entry to storage
-                hasChanges = true;
-            }
-        });
-
-        if (hasChanges) {
-            setEntries(updatedEntries);
+    const saveEntry = async (entryData) => {
+        try {
+            const savedEntry = await StorageService.saveEntry(entryData);
+            setEntries(prev => ({
+                ...prev,
+                [savedEntry.id]: savedEntry
+            }));
+            return savedEntry;
+        } catch (error) {
+            console.error("Failed to save entry:", error);
+            throw error;
         }
-
-        setTags(prev => {
-            const newTags = { ...prev };
-            delete newTags[id];
-            return newTags;
-        });
     };
 
+    const deleteEntry = async (id) => {
+        try {
+            await StorageService.deleteEntry(id);
+            setEntries(prev => {
+                const newEntries = { ...prev };
+                delete newEntries[id];
+                return newEntries;
+            });
+        } catch (error) {
+            console.error("Failed to delete entry:", error);
+        }
+    };
 
+    const saveTag = async (tag) => {
+        try {
+            const savedTag = await StorageService.saveTag(tag);
+            setTags(prev => ({
+                ...prev,
+                [savedTag.id]: savedTag
+            }));
+            return savedTag;
+        } catch (error) {
+            console.error("Failed to save tag:", error);
+        }
+    };
 
-    const togglePin = (id) => {
+    const deleteTag = async (id) => {
+        try {
+            await StorageService.deleteTag(id);
+
+            // Remove this tag from all entries that have it
+            // Note: This might be expensive if there are many entries. 
+            // In a real app, we might want to handle this in the DB or backend.
+            // For now, we'll iterate through local state which mirrors DB.
+
+            const updatedEntries = { ...entries };
+            let hasChanges = false;
+            const updates = [];
+
+            Object.values(updatedEntries).forEach(entry => {
+                if (entry.tags && entry.tags.includes(id)) {
+                    const newTags = entry.tags.filter(tagId => tagId !== id);
+                    const updatedEntry = { ...entry, tags: newTags };
+                    updatedEntries[entry.id] = updatedEntry;
+                    updates.push(StorageService.saveEntry(updatedEntry)); // Async save
+                    hasChanges = true;
+                }
+            });
+
+            if (hasChanges) {
+                await Promise.all(updates);
+                setEntries(updatedEntries);
+            }
+
+            setTags(prev => {
+                const newTags = { ...prev };
+                delete newTags[id];
+                return newTags;
+            });
+        } catch (error) {
+            console.error("Failed to delete tag:", error);
+        }
+    };
+
+    const togglePin = async (id) => {
         const entry = entries[id];
         if (entry) {
             const updatedEntry = { ...entry, isPinned: !entry.isPinned };
-            saveEntry(updatedEntry);
+            await saveEntry(updatedEntry);
         }
     };
 
@@ -148,9 +179,9 @@ export const DiaryProvider = ({ children }) => {
         <DiaryContext.Provider value={{
             entries,
             tags,
+            isLoading,
             saveEntry,
             deleteEntry,
-            saveTag,
             saveTag,
             deleteTag,
             togglePin,

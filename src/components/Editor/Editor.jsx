@@ -112,7 +112,7 @@ const Editor = () => {
         };
     }, [content, selectedTags]); // Auto-save when content or tags change
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const entryData = {
             id: id === 'new' ? undefined : id,
             date: entryDate,
@@ -120,11 +120,15 @@ const Editor = () => {
             tags: selectedTags
         };
 
-        const savedEntry = saveEntryContext(entryData);
+        try {
+            const savedEntry = await saveEntryContext(entryData);
 
-        // If it was new, navigate to the created ID to avoid creating duplicates on subsequent saves
-        if (id === 'new') {
-            navigate(`/entry/${savedEntry.id}`, { replace: true });
+            // If it was new, navigate to the created ID to avoid creating duplicates on subsequent saves
+            if (id === 'new') {
+                navigate(`/entry/${savedEntry.id}`, { replace: true });
+            }
+        } catch (error) {
+            console.error("Failed to save entry:", error);
         }
     };
 
